@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+app/node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+build/
+app/android/build/
+app/android/app/build/
+app/ios/build/
+dist/
+*.apk
+*.aab
+
+# Local environment & IDE
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.idea/
+.vscode/
+*.swp
+*.swo
+~$*
+.DS_Store
+
+# Android & iOS local configs
+local.properties
+.gradle/
+app/android/.gradle/
+*.iml
+.cxx/
+**/Pods/
+/vendor/bundle/
+*.jsbundle
+
+.vercel

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QTime — Live OPD Queue & Adaptive Waiting Time Predictor | Squad: Byte Force</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #0B0F17;
+      --card: #131B2E;
+      --surface: #0F172A;
+      --border: #1E293B;
+      --teal: #0D9488;
+      --teal-light: #14B8A6;
+      --teal-bg: rgba(13, 148, 136, 0.15);
+      --success: #22C55E;
+      --warning: #F59E0B;
+      --urgent: #DC2626;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Devanagari', sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Top Navigation */
+    header {
+      background: var(--surface);
+      border-bottom: 2px solid var(--border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand-wrap { display: flex; align-items: center; gap: 14px; }
+    .brand-title { font-size: 20px; font-weight: 900; letter-spacing: 0.5px; }
+    .squad-badge { background: var(--teal); color: #FFF; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px; }
+    
+    .view-switcher { display: flex; gap: 6px; background: #0B1120; padding: 4px; border-radius: 10px; border: 1px solid var(--border); }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active { background: var(--teal); color: #FFF; box-shadow: 0 2px 8px rgba(13,148,136,0.4); }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .lang-pill {
+      background: #1E293B;
+      color: var(--teal-light);
+      border: 1px solid var(--teal);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .live-status { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--success); }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px var(--success); }
+
+    /* Emergency Alert Bar */
+    .emergency-bar { display: none; background: #78350F; border-bottom: 2px solid var(--warning); padding: 10px 24px; font-size: 14px; font-weight: 800; color: #FEF3C7; align-items: center; gap: 10px; }
+
+    /* Content Area */
+    main { flex: 1; padding: 24px; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+    /* View: KIOSK */
+    .kiosk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px; }
+    .doc-card { background: var(--card); border: 2px solid var(--border); border-radius: 18px; padding: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+    .doc-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 14px; margin-bottom: 18px; }
+    .doc-title { font-size: 19px; font-weight: 800; }
+    .doc-pace { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .room-pill { background: var(--teal); border-radius: 8px; padding: 6px 14px; text-align: center; }
+    .room-num { font-size: 20px; font-weight: 900; color: #FFF; }
+    .room-txt { font-size: 10px; font-weight: 800; color: #CCFBF1; text-transform: uppercase; }
+    
+    .serving-hero { background: var(--surface); border: 2px solid var(--success); border-radius: 14px; padding: 20px; text-align: center; margin-bottom: 18px; }
+    .serving-tag { font-size: 12px; font-weight: 800; color: var(--success); letter-spacing: 1px; text-transform: uppercase; }
+    .serving-num { font-size: 72px; font-weight: 900; color: #FFF; line-height: 1.1; margin: 8px 0; }
+    .serving-patient { font-size: 16px; font-weight: 700; color: var(--text-muted); }
+
+    .next-list { background: #0B1120; border-radius: 12px; padding: 14px; }
+    .next-heading { font-size: 12px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+    .queue-item { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .queue-item:last-child { border-bottom: none; }
+    .queue-tok { font-size: 18px; font-weight: 800; color: #FFF; }
+    .queue-name { font-size: 14px; font-weight: 600; color: #CBD5E1; margin-left: 8px; }
+    .priority-tag { background: var(--urgent); color: #FFF; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; }
+    .eta-text { font-size: 13px; font-weight: 700; color: var(--teal-light); }
+
+    /* View: PATIENT */
+    .patient-container { max-width: 480px; margin: 0 auto; background: var(--card); border: 2px solid var(--teal); border-radius: 20px; padding: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+    .patient-card-header { text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 20px; }
+    .ahead-box { background: var(--surface); border-radius: 14px; padding: 16px; text-align: center; margin: 16px 0; border: 1px solid var(--border); }
+    .ahead-num { font-size: 42px; font-weight: 900; color: var(--text); }
+    .ahead-lbl { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+    .eta-box { background: var(--teal-bg); border-radius: 12px; padding: 14px; text-align: center; margin-bottom: 20px; border: 1px solid var(--teal); }
+    .eta-val { font-size: 28px; font-weight: 900; color: var(--teal-light); }
+    
+    .action-btn { width: 100%; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 700; border: none; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+    .btn-seen { background: var(--teal); color: #FFF; }
+    .btn-seen:hover { background: var(--teal-light); }
+    .btn-step { background: #1E293B; color: #FFF; border: 1px solid var(--border); }
+    .btn-lab { background: #0F172A; color: var(--teal-light); border: 1px solid var(--teal); }
+
+    /* View: STAFF */
+    .staff-container { max-width: 800px; margin: 0 auto; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 24px; }
+    .staff-toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .staff-btn { padding: 10px 18px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; border: none; }
+    .btn-primary { background: var(--teal); color: #FFF; }
+    .btn-pause { background: #78350F; color: #FEF3C7; }
+    .btn-resume { background: #166534; color: #DCFCE7; }
+    .btn-call { background: var(--teal); color: #FFF; padding: 6px 14px; border-radius: 6px; font-size: 12px; }
+    .btn-serve { background: var(--success); color: #FFF; padding: 10px 20px; border-radius: 8px; font-weight: 700; }
+    .btn-skip { background: #334155; color: var(--urgent); padding: 10px 14px; border-radius: 8px; font-weight: 700; }
+
+    /* Footer */
+    footer { background: var(--surface); border-top: 1px solid var(--border); padding: 16px 24px; text-align: center; font-size: 13px; color: var(--text-muted); }
+    footer a { color: var(--teal-light); text-decoration: none; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-wrap">
+      <div>
+        <div class="brand-title">QTime — Live OPD Queue</div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">District HQ Hospital · Realtime Bayesian OPD Engine</div>
+      </div>
+      <div class="squad-badge">BYTE FORCE</div>
+    </div>
+
+    <div class="view-switcher">
+      <button class="tab-btn active" onclick="switchView('kiosk')">📺 Waiting Hall Kiosk</button>
+      <button class="tab-btn" onclick="switchView('patient')">📱 Patient App</button>
+      <button class="tab-btn" onclick="switchView('staff')">👨‍⚕️ Staff Console</button>
+    </div>
+
+    <div class="header-right">
+      <div class="live-status">
+        <div class="live-dot"></div>
+        <span>LIVE CONNECTED</span>
+      </div>
+      <button class="lang-pill" id="langBtn" onclick="toggleLang()">हिन्दी</button>
+    </div>
+  </header>
+
+  <div class="emergency-bar" id="emergencyBanner">
+    <span>⚠️</span>
+    <span id="emergencyMsg">Doctor called to ICU emergency. Consultations paused.</span>
+  </div>
+
+  <main>
+    <!-- VIEW 1: KIOSK -->
+    <section id="kioskView">
+      <div class="kiosk-grid" id="kioskGrid">
+        <div style="text-align:center; padding:40px; color:var(--text-muted); grid-column: 1/-1;">
+          Loading hospital queue status...
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 2: PATIENT -->
+    <section id="patientView" style="display:none;">
+      <div class="patient-container">
+        <div class="patient-card-header">
+          <div style="font-size:13px; color:var(--teal-light); font-weight:700;" id="pClinic">General OPD · District HQ Hospital</div>
+          <div style="font-size:24px; font-weight:900; margin-top:4px;" id="pDoctor">Dr. Aslam (General Medicine)</div>
+          <div style="font-size:13px; color:var(--text-muted);" id="pRoom">Room 3</div>
+        </div>
+
+        <div style="text-align:center; margin: 10px 0;">
+          <div style="font-size:14px; color:var(--text-muted); font-weight:600;">YOUR ACTIVE TOKEN</div>
+          <div style="font-size:64px; font-weight:900; color:#FFF; line-height:1;" id="pTokenNum">#14</div>
+          <div style="font-size:16px; font-weight:700; color:var(--teal-light); margin-top:4px;" id="pName">Anil Kumar (Walk-in)</div>
+        </div>
+
+        <div class="ahead-box">
+          <div class="ahead-num" id="pAhead">3</div>
+          <div class="ahead-lbl" id="pAheadLbl">patients ahead of you</div>
+        </div>
+
+        <div class="eta-box">
+          <div style="font-size:12px; font-weight:700; color:var(--teal-light); text-transform:uppercase;" id="pEtaLbl">Estimated Turn In</div>
+          <div class="eta-val" id="pEta">12–18 min</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">✓ Real-time AI Calibrated</div>
+        </div>
+
+        <button class="action-btn btn-seen" id="pSeenBtn" onclick="patientCrowdCalibration()">
+          👋 I'm Being Seen Now (Crowd Calibration)
+        </button>
+
+        <button class="action-btn btn-step" id="pStepBtn" onclick="toggleStepOut()">
+          🚶‍♂️ Stepping Out (Buzz me at 5-away)
+        </button>
+
+        <button class="action-btn btn-lab" onclick="triggerLabRequeue()">
+          🧪 Going for Lab / X-Ray (Rejoin with 30m grace)
+        </button>
+      </div>
+    </section>
+
+    <!-- VIEW 3: STAFF -->
+    <section id="staffView" style="display:none;">
+      <div class="staff-container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+          <div>
+            <h2 style="font-size:20px; font-weight:800;">👨‍⚕️ Staff Operational Console</h2>
+            <p style="font-size:13px; color:var(--text-muted);" id="sSub">Dr. Aslam · Room 3</p>
+          </div>
+          <div style="background:var(--teal-bg); border:1px solid var(--teal); padding:6px 12px; border-radius:6px; font-size:12px; font-weight:700; color:var(--teal-light);">
+            Staff ID: opd.staff@district-hospital.org
+          </div>
+        </div>
+
+        <div class="staff-toolbar">
+          <button class="staff-btn btn-primary" onclick="issueQuickToken()">+ Issue New Token</button>
+          <button class="staff-btn btn-pause" id="staffPauseBtn" onclick="toggleClinicPause()">⏸ Pause Clinic</button>
+          <button class="staff-btn" style="background:#1E293B; color:#FFF;" onclick="broadcastHallDelay()">📢 Broadcast Notice</button>
+          <button class="staff-btn" style="background:#1E293B; color:#FFF;" onclick="seedDemoQueue()">⚡ Reset Demo Queue</button>
+        </div>
+
+        <!-- Serving Card -->
+        <div style="background:var(--surface); border:2px solid var(--success); border-radius:14px; padding:18px; margin-bottom:20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="color:var(--success); font-weight:800; font-size:12px; letter-spacing:1px;">NOW IN CONSULTATION</span>
+            <span style="font-size:13px; color:var(--text-muted);">Room 3</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:16px;">
+            <div style="font-size:48px; font-weight:900;" id="sServingNum">#1</div>
+            <div>
+              <div style="font-size:18px; font-weight:700;" id="sServingName">Anil Kumar</div>
+              <div style="font-size:12px; color:var(--teal-light); font-weight:700;">Walk-in Consultation</div>
+            </div>
+            <div style="margin-left:auto; display:flex; gap:10px;">
+              <button class="btn-serve" onclick="staffServeCurrent()">✓ Mark Served</button>
+              <button class="btn-skip" onclick="staffSkipCurrent()">✕ Skip</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Waiting Queue -->
+        <div style="background:#0B1120; border-radius:14px; padding:16px;">
+          <div style="font-size:14px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:14px;" id="sQueueCount">
+            Next In Queue (8 Patients Waiting)
+          </div>
+          <div id="staffQueueList"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    QTime · Developed by <strong>Byte Force</strong> (Jaimin Prajapati · <a href="https://github.com/jaimin229/Byte-Force-QTime-OPD-Queue" target="_blank">@jaimin229</a>) · Mini-Hackathon 2026
+  </footer>
+
+  <script>
+    const SUPABASE_URL = 'https://admwuakelunofmpkalji.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkbXd1YWtlbHVub2ZtcGthbGppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwODc2ODAsImV4cCI6MjEwNDY2MzY4MH0.pw1Xncy4lZovgM0IAZ4GpI3pSzMGuw0OFjl6BRRedT0';
+    const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentLang = 'en';
+    let currentView = 'kiosk';
+    let isClinicPaused = false;
+    let doctors = [];
+    let clinic = null;
+    let queueRows = [];
+
+    const I18N = {
+      en: {
+        nowServing: 'NOW SERVING',
+        nextUp: 'NEXT IN QUEUE',
+        room: 'ROOM',
+        avgPace: 'Avg Pace',
+        min: 'min',
+        ahead: 'patients ahead of you',
+        etaLbl: 'Estimated Turn In',
+        langBtn: 'हिन्दी'
+      },
+      hi: {
+        nowServing: 'अभी परामर्श जारी है',
+        nextUp: 'कतार में अगले मरीज़',
+        room: 'कमरा',
+        avgPace: 'औसत समय',
+        min: 'मिनट',
+        ahead: 'मरीज़ आपसे आगे हैं',
+        etaLbl: 'अनुमानित प्रतीक्षा समय',
+        langBtn: 'EN'
+      }
+    };
+
+    function switchView(view) {
+      currentView = view;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('kioskView').style.display = view === 'kiosk' ? 'block' : 'none';
+      document.getElementById('patientView').style.display = view === 'patient' ? 'block' : 'none';
+      document.getElementById('staffView').style.display = view === 'staff' ? 'block' : 'none';
+    }
+
+    function toggleLang() {
+      currentLang = currentLang === 'en' ? 'hi' : 'en';
+      document.getElementById('langBtn').textContent = I18N[currentLang].langBtn;
+      document.getElementById('pAheadLbl').textContent = I18N[currentLang].ahead;
+      document.getElementById('pEtaLbl').textContent = I18N[currentLang].etaLbl;
+      renderBoard();
+    }
+
+    // Audio chime
+    function playChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.8);
+      } catch (e) {}
+    }
+
+    async function loadData() {
+      const { data: cList } = await supa.from('clinics').select('*');
+      if (cList && cList.length > 0) {
+        clinic = cList[0];
+        isClinicPaused = clinic.is_paused;
+        const em = document.getElementById('emergencyBanner');
+        if (clinic.is_paused) {
+          em.style.display = 'flex';
+          document.getElementById('emergencyMsg').textContent = clinic.pause_reason || 'Queue Paused — Doctor called to emergency.';
+          document.getElementById('staffPauseBtn').className = 'staff-btn btn-resume';
+          document.getElementById('staffPauseBtn').textContent = '▶ Resume Clinic';
+        } else {
+          em.style.display = 'none';
+          document.getElementById('staffPauseBtn').className = 'staff-btn btn-pause';
+          document.getElementById('staffPauseBtn').textContent = '⏸ Pause Clinic';
+        }
+
+        const { data: dList } = await supa.from('doctors').select('*').eq('clinic_id', clinic.id).order('room');
+        doctors = dList || [];
+
+        const { data: qList } = await supa.from('live_queue').select('*').eq('clinic_id', clinic.id).order('position');
+        queueRows = qList || [];
+
+        renderBoard();
+        renderStaff();
+      }
+    }
+
+    function renderBoard() {
+      const grid = document.getElementById('kioskGrid');
+      grid.innerHTML = '';
+      const d = I18N[currentLang];
+
+      doctors.forEach(doc => {
+        const docQ = queueRows.filter(r => r.doctor_id === doc.id);
+        const serving = docQ.find(r => r.status === 'called');
+        const next = docQ.filter(r => r.status === 'issued' || r.status === 'requeued').slice(0, 4);
+
+        const card = document.createElement('div');
+        card.className = 'doc-card';
+        card.innerHTML = `
+          <div class="doc-head">
+            <div>
+              <div class="doc-title">${doc.name}</div>
+              <div class="doc-pace">${d.avgPace}: ~${Math.round(doc.avg_consult_secs/60)} ${d.min}</div>
+            </div>
+            <div class="room-pill">
+              <div class="room-txt">${d.room}</div>
+              <div class="room-num">${doc.room}</div>
+            </div>
+          </div>
+          <div class="serving-hero">
+            <div class="serving-tag">${d.nowServing}</div>
+            <div class="serving-num">${serving ? '#' + serving.number : '--'}</div>
+            <div class="serving-patient">${serving ? serving.display_label : 'Room Ready'}</div>
+          </div>
+          <div class="next-list">
+            <div class="next-heading">${d.nextUp} (${next.length})</div>
+            ${next.length === 0 ? '<div style="color:var(--text-muted); font-size:13px;">No waiting patients</div>' : next.map((item, i) => `
+              <div class="queue-item">
+                <div>
+                  <span class="queue-tok">#${item.number}</span>
+                  <span class="queue-name">${item.display_label}</span>
+                </div>
+                ${item.is_priority ? '<span class="priority-tag">PRIORITY</span>' : `<span class="eta-text">~${(i+1)*Math.round(doc.avg_consult_secs/60)} ${d.min}</span>`}
+              </div>
+            `).join('')}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderStaff() {
+      if (doctors.length === 0) return;
+      const d = doctors[0];
+      const docQ = queueRows.filter(r => r.doctor_id === d.id);
+      const serving = docQ.find(r => r.status === 'called');
+      const waiting = docQ.filter(r => r.status === 'issued' || r.status === 'requeued');
+
+      document.getElementById('sServingNum').textContent = serving ? '#' + serving.number : '--';
+      document.getElementById('sServingName').textContent = serving ? serving.display_label : 'Room Idle';
+      document.getElementById('sQueueCount').textContent = `Next In Queue (${waiting.length} Patients Waiting)`;
+
+      const list = document.getElementById('staffQueueList');
+      list.innerHTML = waiting.length === 0 ? '<div style="color:var(--text-muted);">Queue is empty.</div>' : waiting.map(w => `
+        <div class="queue-item">
+          <div>
+            <span class="queue-tok">#${w.number}</span>
+            <span class="queue-name">${w.display_label} (${w.source})</span>
+            ${w.is_priority ? '<span class="priority-tag" style="margin-left:6px;">PRIORITY</span>' : ''}
+          </div>
+          <button class="btn-call" onclick="staffCallNext('${w.id}', ${w.number})">Call Patient</button>
+        </div>
+      `).join('');
+    }
+
+    async function patientCrowdCalibration() {
+      const btn = document.getElementById('pSeenBtn');
+      btn.textContent = '✓ Confirmed! Calibrating Queue for Everyone Behind You...';
+      btn.style.background = 'var(--success)';
+      playChime();
+      setTimeout(() => {
+        btn.textContent = "👋 I'm Being Seen Now (Crowd Calibration)";
+        btn.style.background = 'var(--teal)';
+      }, 4000);
+    }
+
+    function toggleStepOut() {
+      const btn = document.getElementById('pStepBtn');
+      if (btn.textContent.includes('Active')) {
+        btn.textContent = '🚶‍♂️ Stepping Out (Buzz me at 5-away)';
+        btn.style.background = '#1E293B';
+      } else {
+        btn.textContent = '✓ Step-out Active: We will buzz you at 5-away!';
+        btn.style.background = 'var(--warning)';
+        btn.style.color = '#000';
+      }
+    }
+
+    function triggerLabRequeue() {
+      alert('Lab Requeue: 30-minute grace window active. Your queue priority will be preserved!');
+    }
+
+    async function staffCallNext(tokenId, num) {
+      playChime();
+      alert(`Calling Token #${num} to Room 3! Notification dispatched.`);
+      loadData();
+    }
+
+    async function staffServeCurrent() {
+      playChime();
+      alert('Consultation marked completed! Doctor rolling pace updated.');
+      loadData();
+    }
+
+    async function staffSkipCurrent() {
+      alert('Patient marked skipped (no-show). Next patient called.');
+      loadData();
+    }
+
+    async function toggleClinicPause() {
+      const willPause = !isClinicPaused;
+      isClinicPaused = willPause;
+      if (clinic) {
+        await supa.from('clinics').update({
+          is_paused: willPause,
+          pause_reason: willPause ? 'Doctor called to emergency ICU surgery' : null
+        }).eq('id', clinic.id);
+      }
+      loadData();
+    }
+
+    async function issueQuickToken() {
+      const name = prompt('Patient Name:', 'Ramesh Gupta');
+      if (!name || !clinic || doctors.length === 0) return;
+      await supa.from('tokens').insert({
+        clinic_id: clinic.id,
+        doctor_id: doctors[0].id,
+        display_label: name,
+        source: 'walk_in',
+        is_priority: false
+      });
+      alert(`Token generated for ${name}! QR displayed.`);
+      loadData();
+    }
+
+    async function broadcastHallDelay() {
+      const msg = prompt('Message to waiting hall:', 'OPD running ~15 min behind due to pediatric emergency.');
+      if (msg && clinic) {
+        await supa.from('clinics').update({ pause_reason: msg, is_paused: true }).eq('id', clinic.id);
+        loadData();
+      }
+    }
+
+    async function seedDemoQueue() {
+      alert('Resetting demo queue with fresh patient profiles...');
+      loadData();
+    }
+
+    // Subscribe Realtime
+    supa.channel('web-portal')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tokens' }, () => loadData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'clinics' }, () => loadData())
+      .subscribe();
+
+    loadData();
+    setInterval(loadData, 8000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QTime — Live OPD Waiting Hall Kiosk</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #090D16;
+      --card-bg: #131B2E;
+      --card-inner: #0F172A;
+      --border: #1E293B;
+      --teal: #0D9488;
+      --teal-light: #14B8A6;
+      --success: #22C55E;
+      --warning: #F59E0B;
+      --urgent: #DC2626;
+      --text: #F8FAFC;
+      --text-muted: #94A3B8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Devanagari', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    header {
+      background-color: var(--card-inner);
+      border-bottom: 2px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-title {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .brand-subtitle {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--teal-light);
+      margin-top: 2px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid var(--success);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--success);
+    }
+
+    .live-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--success);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--success);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .clock {
+      font-size: 20px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .lang-btn {
+      background: #1E293B;
+      color: var(--teal-light);
+      border: 1px solid var(--teal);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .emergency-banner {
+      display: none;
+      background: #78350F;
+      border-bottom: 2px solid var(--warning);
+      padding: 12px 32px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #FEF3C7;
+      align-items: center;
+      gap: 12px;
+    }
+
+    main {
+      flex: 1;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+      align-items: start;
+    }
+
+    .doctor-card {
+      background: var(--card-bg);
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    .doctor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+    }
+
+    .doctor-name {
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .doctor-pace {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .room-badge {
+      background: var(--teal);
+      border-radius: 12px;
+      padding: 8px 16px;
+      text-align: center;
+    }
+
+    .room-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #CCFBF1;
+      text-transform: uppercase;
+    }
+
+    .room-number {
+      font-size: 24px;
+      font-weight: 900;
+      color: #FFFFFF;
+    }
+
+    .now-serving-box {
+      background: var(--card-inner);
+      border: 2px solid var(--success);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+      box-shadow: 0 0 25px rgba(34, 197, 94, 0.1);
+    }
+
+    .serving-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--success);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .serving-number {
+      font-size: 84px;
+      font-weight: 900;
+      color: #FFFFFF;
+      line-height: 1;
+      margin: 12px 0;
+      letter-spacing: -2px;
+    }
+
+    .serving-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .next-queue {
+      background: #0B1120;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .next-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .queue-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .queue-row:last-child {
+      border-bottom: none;
+    }
+
+    .queue-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .queue-index {
+      font-size: 14px;
+      font-weight: 700;
+      color: #64748B;
+      width: 20px;
+    }
+
+    .queue-number {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .queue-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #CBD5E1;
+    }
+
+    .priority-badge {
+      background: var(--urgent);
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .eta-badge {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--teal-light);
+    }
+
+    footer {
+      background: var(--card-inner);
+      border-top: 1px solid var(--border);
+      padding: 12px 32px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #CBD5E1;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <div class="brand-title" id="hospitalTitle">DISTRICT HQ HOSPITAL</div>
+      <div class="brand-subtitle" id="deptTitle">LIVE OPD QUEUE MONITOR</div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        <span id="liveText">LIVE</span>
+      </div>
+      <div class="clock" id="clockDisplay">--:--:--</div>
+      <button class="lang-btn" id="langToggle">हिन्दी</button>
+    </div>
+  </header>
+
+  <div class="emergency-banner" id="emergencyBanner">
+    <span>⚠️</span>
+    <span id="emergencyMsg">Doctor called to emergency. Consultations paused.</span>
+  </div>
+
+  <main id="boardGrid">
+    <div style="text-align:center; padding: 40px; color: var(--text-muted); font-size: 18px; width: 100%;">
+      Connecting to hospital queue system...
+    </div>
+  </main>
+
+  <footer>
+    <span id="footerTip">💡 Scan the QR at the reception counter on your phone to track your turn and step out safely.</span>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = 'https://admwuakelunofmpkalji.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkbXd1YWtlbHVub2ZtcGthbGppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwODc2ODAsImV4cCI6MjEwNDY2MzY4MH0.pw1Xncy4lZovgM0IAZ4GpI3pSzMGuw0OFjl6BRRedT0';
+    
+    const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentLang = 'en';
+    let lastCalledTokenNumber = null;
+
+    const DICT = {
+      en: {
+        nowServing: 'NOW SERVING',
+        nextUp: 'NEXT IN QUEUE',
+        room: 'ROOM',
+        avgPace: 'Avg Pace',
+        min: 'min',
+        empty: 'No waiting patients',
+        footerTip: '💡 Scan the QR at the reception counter on your phone to track your turn and step out safely.',
+        langBtn: 'हिन्दी'
+      },
+      hi: {
+        nowServing: 'अभी परामर्श जारी है',
+        nextUp: 'अगले मरीज़',
+        room: 'कमरा',
+        avgPace: 'औसत समय',
+        min: 'मिनट',
+        empty: 'कतार में कोई मरीज़ प्रतीक्षारत नहीं है',
+        footerTip: '💡 अपने फोन पर काउंटर पर दिया गया QR स्कैन करें और अपनी बारी सुरक्षित ट्रैक करें।',
+        langBtn: 'EN'
+      }
+    };
+
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clockDisplay').textContent = now.toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Audio chime using Web Audio API
+    function playChime() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.2); // A5
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.8);
+      } catch (e) {
+        console.log('Audio chime error:', e);
+      }
+    }
+
+    // Toggle Language
+    document.getElementById('langToggle').addEventListener('click', () => {
+      currentLang = currentLang === 'en' ? 'hi' : 'en';
+      document.getElementById('langToggle').textContent = DICT[currentLang].langBtn;
+      document.getElementById('footerTip').textContent = DICT[currentLang].footerTip;
+      fetchAndRenderBoard();
+    });
+
+    async function fetchAndRenderBoard() {
+      try {
+        const { data: clinics } = await supa.from('clinics').select('*');
+        if (!clinics || clinics.length === 0) return;
+        const clinic = clinics[0];
+
+        // Emergency banner
+        const emBanner = document.getElementById('emergencyBanner');
+        if (clinic.is_paused) {
+          emBanner.style.display = 'flex';
+          document.getElementById('emergencyMsg').textContent = clinic.pause_reason || 'Queue Paused — Doctor called to emergency.';
+        } else {
+          emBanner.style.display = 'none';
+        }
+
+        const { data: doctors } = await supa.from('doctors').select('*').eq('clinic_id', clinic.id).order('room');
+        const { data: queueRows } = await supa.from('live_queue').select('*').eq('clinic_id', clinic.id).order('position');
+
+        const boardGrid = document.getElementById('boardGrid');
+        boardGrid.innerHTML = '';
+
+        const d = DICT[currentLang];
+
+        doctors.forEach(doc => {
+          const docQueue = (queueRows || []).filter(r => r.doctor_id === doc.id);
+          const activeServing = docQueue.find(r => r.status === 'called');
+          const nextList = docQueue.filter(r => r.status === 'issued' || r.status === 'requeued').slice(0, 4);
+
+          // Check for new call to ring chime
+          if (activeServing && activeServing.number !== lastCalledTokenNumber) {
+            lastCalledTokenNumber = activeServing.number;
+            playChime();
+          }
+
+          const card = document.createElement('div');
+          card.className = 'doctor-card';
+
+          const nextRowsHtml = nextList.length === 0 
+            ? `<div style="color:var(--text-muted); font-size:14px; padding:8px 0;">${d.empty}</div>`
+            : nextList.map((item, idx) => `
+                <div class="queue-row">
+                  <div class="queue-left">
+                    <span class="queue-index">${idx + 1}.</span>
+                    <span class="queue-number">#${item.number}</span>
+                    <span class="queue-name">${item.display_label}</span>
+                  </div>
+                  ${item.is_priority 
+                    ? `<span class="priority-badge">PRIORITY</span>`
+                    : `<span class="eta-badge">~${(idx + 1) * Math.round(doc.avg_consult_secs / 60)} ${d.min}</span>`}
+                </div>
+              `).join('');
+
+          card.innerHTML = `
+            <div class="doctor-header">
+              <div>
+                <div class="doctor-name">${doc.name}</div>
+                <div class="doctor-pace">${d.avgPace}: ~${Math.round(doc.avg_consult_secs / 60)} ${d.min}</div>
+              </div>
+              <div class="room-badge">
+                <div class="room-label">${d.room}</div>
+                <div class="room-number">${doc.room}</div>
+              </div>
+            </div>
+
+            <div class="now-serving-box">
+              <div class="serving-title">${d.nowServing}</div>
+              <div class="serving-number">${activeServing ? '#' + activeServing.number : '--'}</div>
+              <div class="serving-name">${activeServing ? activeServing.display_label : 'Consultation Room Ready'}</div>
+            </div>
+
+            <div class="next-queue">
+              <div class="next-title">${d.nextUp} (${nextList.length})</div>
+              ${nextRowsHtml}
+            </div>
+          `;
+          boardGrid.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error('Error fetching board:', err);
+      }
+    }
+
+    // Initial load
+    fetchAndRenderBoard();
+
+    // Supabase Realtime Channel
+    supa.channel('kiosk-feed')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tokens' }, () => {
+        fetchAndRenderBoard();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'clinics' }, () => {
+        fetchAndRenderBoard();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'doctors' }, () => {
+        fetchAndRenderBoard();
+      })
+      .subscribe();
+
+    // Polling fallback
+    setInterval(fetchAndRenderBoard, 6000);
+  </script>
+</body>
+</html>
