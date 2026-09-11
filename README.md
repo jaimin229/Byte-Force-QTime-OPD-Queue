@@ -100,29 +100,36 @@ QTime transforms every waiting patient into a **live sensor**, giving patients, 
 - Node.js >= 18
 - npm or yarn
 
-### 1. Seed Demo Data
+### 1. 🌐 Universal Live Web Portal (Zero-Install Access for Everyone)
+Anyone can access all roles immediately in their browser at **[https://byte-force-qtime.vercel.app](https://byte-force-qtime.vercel.app)**:
+- **📺 Waiting Hall TV**: Fullscreen cinema mode with Web Audio API chime and bilingual speech announcements.
+- **📱 Patient App**: Track any active token, view Bayesian ETA, crowd-calibrate with "I'm Being Seen", arm "Stepping Out" alerts, or scan caregiver QR passes.
+- **👨‍⚕️ Staff Console**: Switch doctor lanes, call next patient, mark served, pause for ICU emergencies, and issue walk-in tokens.
+- **📊 Telemetry & Analytics**: Live doctor consultation pace, queue velocity, and Bayesian parameter indicators.
+- **⚡ Evaluator Demo Bar**: 1-tap simulator to test calling patients, emergency surges, and re-seeding queues.
+
+### 2. Seed Demo Data
 ```bash
 node backend/seed_demo.js
 ```
 
-### 2. Run the Mobile App
+### 3. Run Automated E2E Verification
+```bash
+node backend/verify_e2e.js
+```
+
+### 4. Run the Mobile Native App (React Native)
 ```bash
 cd app
 npm install
+npm test
 npm start
 ```
 - For Android: `npm run android`
 - For iOS: `npm run ios`
 
-### 3. Open Waiting Hall Kiosk
-Simply open `kiosk/index.html` in any browser or cast to a Smart TV:
-```bash
-# Double-click kiosk/index.html or serve locally:
-npx serve kiosk
-```
-
 ---
 
 ## 👥 Squad: Byte Force
 - **Jaimin Prajapati** — Lead Developer ([@jaimin229](https://github.com/jaimin229))
-- Mini-Hackathon 2026 Submission
+- Mini-Hackathon 2026 Submission · Track: HealthTech & Wellness (Difficulty: HARD)
