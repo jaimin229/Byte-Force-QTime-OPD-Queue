@@ -15,6 +15,7 @@ import {ErrorBoundary} from './src/components/ErrorBoundary';
 import {PatientScreen} from './src/screens/PatientScreen';
 import {StaffScreen} from './src/screens/StaffScreen';
 import {KioskScreen} from './src/screens/KioskScreen';
+import {PhoneIcon, StethoscopeIcon, TvIcon} from './src/components/Icons';
 
 type AppTab = 'patient' | 'staff' | 'kiosk';
 
@@ -68,7 +69,7 @@ function MainApp(): React.JSX.Element {
           style={[styles.navItem, activeTab === 'patient' ? styles.navItemActive : null]}
           onPress={() => setActiveTab('patient')}
           activeOpacity={0.8}>
-          <Text style={styles.navIcon}>📱</Text>
+          <PhoneIcon size={20} color={activeTab === 'patient' ? THEME.colors.teal : THEME.colors.textMuted} />
           <Text style={[styles.navText, activeTab === 'patient' ? styles.navTextActive : null]}>
             {t('iAmPatient')}
           </Text>
@@ -78,7 +79,7 @@ function MainApp(): React.JSX.Element {
           style={[styles.navItem, activeTab === 'staff' ? styles.navItemActive : null]}
           onPress={() => setActiveTab('staff')}
           activeOpacity={0.8}>
-          <Text style={styles.navIcon}>👨‍⚕️</Text>
+          <StethoscopeIcon size={20} color={activeTab === 'staff' ? THEME.colors.teal : THEME.colors.textMuted} />
           <Text style={[styles.navText, activeTab === 'staff' ? styles.navTextActive : null]}>
             {t('iAmStaff')}
           </Text>
@@ -88,7 +89,7 @@ function MainApp(): React.JSX.Element {
           style={[styles.navItem, activeTab === 'kiosk' ? styles.navItemActive : null]}
           onPress={() => setActiveTab('kiosk')}
           activeOpacity={0.8}>
-          <Text style={styles.navIcon}>📺</Text>
+          <TvIcon size={20} color={activeTab === 'kiosk' ? THEME.colors.teal : THEME.colors.textMuted} />
           <Text style={[styles.navText, activeTab === 'kiosk' ? styles.navTextActive : null]}>
             {t('waitingHallKiosk')}
           </Text>

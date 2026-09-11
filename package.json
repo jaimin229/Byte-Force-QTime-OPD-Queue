@@ -1,0 +1,14 @@
+{
+  "name": "qtime-opd",
+  "version": "1.0.0",
+  "private": true,
+  "description": "QTime — Live OPD Queue & Adaptive Bayesian Waiting Time Predictor",
+  "scripts": {
+    "test:e2e": "node backend/verify_e2e.js",
+    "tsc": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

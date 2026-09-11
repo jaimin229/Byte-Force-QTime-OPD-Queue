@@ -27,6 +27,7 @@ import {cacheGet, cacheSet, cacheKeys} from '../offline';
 import {buzzComeBack, buzzCalled, buzzRoom, buzzPaused, buzzResumed} from '../notify';
 import type {Clinic, Doctor, Token, Eta} from '../types';
 import {fmtRange, parseClaimPayload} from '../types';
+import {AlertTriangleIcon} from '../components/Icons';
 
 interface PatientScreenProps {
   onSwitchMode?: () => void;
@@ -282,7 +283,7 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
         {/* Action Switcher */}
         {onSwitchMode && (
           <TouchableOpacity style={styles.switchModePill} onPress={onSwitchMode} activeOpacity={0.7}>
-            <Text style={styles.switchModeText}>⚙️ {t('iAmStaff')} / {t('waitingHallKiosk')}</Text>
+            <Text style={styles.switchModeText}>{t('iAmStaff')} / {t('waitingHallKiosk')}</Text>
           </TouchableOpacity>
         )}
 
@@ -324,7 +325,7 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
             style={[commonStyles.secondaryButton, styles.demoButton]}
             onPress={handleQuickDemoToken}
             activeOpacity={0.8}>
-            <Text style={commonStyles.secondaryButtonText}>⚡ View Demo Token (#14)</Text>
+            <Text style={commonStyles.secondaryButtonText}>View Demo Token (#14)</Text>
           </TouchableOpacity>
         </View>
 
@@ -334,7 +335,7 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
             style={styles.caregiverHeader}
             onPress={() => setCaregiverMode(!caregiverMode)}
             activeOpacity={0.7}>
-            <Text style={styles.caregiverTitle}>👥 {t('orFollow')}</Text>
+            <Text style={styles.caregiverTitle}>{t('orFollow')}</Text>
             <Text style={styles.chevronText}>{caregiverMode ? '▲' : '▼'}</Text>
           </TouchableOpacity>
 
@@ -408,7 +409,7 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
       {/* Emergency Delay Banner */}
       {isPaused && (
         <View style={styles.emergencyBanner}>
-          <Text style={styles.emergencyIcon}>⚠️</Text>
+          <AlertTriangleIcon size={20} color={THEME.colors.warning} />
           <View style={styles.emergencyContent}>
             <Text style={styles.emergencyTitle}>{t('queuePaused')}</Text>
             <Text style={styles.emergencyDesc}>{clinic?.pause_reason || t('pausedReason')}</Text>
@@ -420,7 +421,7 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
       {doctor && (
         <View style={styles.roomNotice}>
           <Text style={styles.roomNoticeText}>
-            👨‍⚕️ {doctor.name} · <Text style={styles.roomBold}>{t('room')} {doctor.room}</Text>
+            {doctor.name} · <Text style={styles.roomBold}>{t('room')} {doctor.room}</Text>
           </Text>
         </View>
       )}
@@ -461,11 +462,11 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
         {/* Queue Position & Call Status */}
         {isCalled ? (
           <View style={styles.calledBanner}>
-            <Text style={styles.calledTitle}>🔔 {t('youAreNext', {room: doctor?.room || 1})}</Text>
+            <Text style={styles.calledTitle}>{t('youAreNext', {room: doctor?.room || 1})}</Text>
           </View>
         ) : isServed ? (
           <View style={styles.servedBanner}>
-            <Text style={styles.servedTitle}>✅ {t('served')}</Text>
+            <Text style={styles.servedTitle}>{t('served')}</Text>
           </View>
         ) : (
           <View style={styles.positionBlock}>
@@ -481,7 +482,7 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
             <Text style={styles.etaValue}>{isPaused ? 'Paused' : waitEstimate}</Text>
             <View style={styles.confidencePill}>
               <Text style={styles.confidenceText}>
-                {isPaused ? 'ETA Frozen Honestly' : `✓ ${t('calibrated')}`}
+                {isPaused ? 'ETA Frozen Honestly' : t('calibrated')}
               </Text>
             </View>
           </View>
@@ -491,7 +492,7 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
       {/* Patient Action 1: "I'm Being Seen" Crowd Calibration */}
       {!isServed && (
         <View style={[commonStyles.card, styles.actionSection]}>
-          <Text style={styles.sectionHeading}>🤝 Crowd Calibration</Text>
+          <Text style={styles.sectionHeading}>Crowd Calibration</Text>
           <Text style={styles.sectionSubtext}>
             Tap below when your name is called to enter the room. This anonymously sharpens the queue timer for everyone waiting behind you.
           </Text>
@@ -505,7 +506,7 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
             disabled={confirmedSeen}
             activeOpacity={0.8}>
             <Text style={commonStyles.primaryButtonText}>
-              {confirmedSeen ? `✓ ${t('seenConfirmation')}` : `👋 ${t('imBeingSeen')}`}
+              {confirmedSeen ? t('seenConfirmation') : t('imBeingSeen')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -538,7 +539,7 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
           style={[commonStyles.secondaryButton, styles.labButton]}
           onPress={handleLabRequeue}
           activeOpacity={0.8}>
-          <Text style={commonStyles.secondaryButtonText}>🧪 {t('goingForLab')} / {t('backToQueue')}</Text>
+          <Text style={commonStyles.secondaryButtonText}>{t('goingForLab')} / {t('backToQueue')}</Text>
         </TouchableOpacity>
       )}
 
@@ -547,7 +548,7 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
         style={styles.releaseButton}
         onPress={handleReleaseToken}
         activeOpacity={0.7}>
-        <Text style={styles.releaseText}>✕ Exit / Check Another Token</Text>
+        <Text style={styles.releaseText}>Exit / Check Another Token</Text>
       </TouchableOpacity>
     </ScrollView>
   );
