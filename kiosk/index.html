@@ -2,406 +2,831 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QTime — Live OPD Waiting Hall Kiosk</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>QTime — 4K Waiting Hall Cinema TV Display | Squad: Byte Force</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800;900&family=JetBrains+Mono:wght@700;800;900&family=Noto+Sans+Devanagari:wght@600;700;800;900&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --bg: #090D16;
-      --card-bg: #131B2E;
-      --card-inner: #0F172A;
+      --bg-dark: #070B14;
+      --bg-slate: #0B1120;
+      --card-bg: #0F172A;
+      --card-inner: #090E1A;
       --border: #1E293B;
+      --border-bright: #334155;
+      
       --teal: #0D9488;
-      --teal-light: #14B8A6;
-      --success: #22C55E;
-      --warning: #F59E0B;
-      --urgent: #DC2626;
-      --text: #F8FAFC;
+      --teal-light: #2DD4BF;
+      --emerald: #10B981;
+      --emerald-light: #34D399;
+      --crimson: #F43F5E;
+      --crimson-glow: rgba(244, 63, 94, 0.4);
+      --amber: #F59E0B;
+      
+      --text-main: #FFFFFF;
       --text-muted: #94A3B8;
+      --text-subtle: #64748B;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Devanagari', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
-      background-color: var(--bg);
-      color: var(--text);
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, #172554 0%, transparent 60%),
+        radial-gradient(circle at 100% 100%, #064E3B 0%, transparent 40%);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
+      overflow: hidden;
+      user-select: none;
     }
 
+    body.tv-idle {
+      cursor: none;
+    }
+
+    /* ================= HEADER BAR ================= */
     header {
-      background-color: var(--card-inner);
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(20px);
       border-bottom: 2px solid var(--border);
-      padding: 16px 32px;
+      padding: clamp(14px, 1.8vh, 24px) clamp(24px, 3vw, 48px);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      z-index: 50;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-icon {
+      width: clamp(40px, 4vw, 54px);
+      height: clamp(40px, 4vw, 54px);
+      background: linear-gradient(135deg, #0D9488 0%, #0891B2 100%);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      box-shadow: 0 0 20px rgba(13, 148, 136, 0.4);
     }
 
     .brand-title {
-      font-size: 24px;
+      font-size: clamp(1.2rem, 1.8vw, 2.2rem);
       font-weight: 900;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      line-height: 1.1;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .squad-tag {
+      font-size: clamp(0.65rem, 0.9vw, 0.9rem);
+      background: rgba(45, 212, 191, 0.15);
+      color: var(--teal-light);
+      border: 1px solid rgba(45, 212, 191, 0.35);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 800;
     }
 
     .brand-subtitle {
-      font-size: 14px;
+      font-size: clamp(0.75rem, 1vw, 1.15rem);
       font-weight: 700;
       color: var(--teal-light);
-      margin-top: 2px;
+      margin-top: 3px;
+      letter-spacing: 0.5px;
     }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: clamp(14px, 1.8vw, 30px);
     }
 
-    .live-badge {
+    .live-beacon {
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: rgba(34, 197, 94, 0.15);
-      border: 1px solid var(--success);
-      padding: 6px 14px;
+      gap: 10px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1.5px solid var(--emerald);
+      padding: clamp(6px, 0.8vh, 10px) clamp(14px, 1.2vw, 20px);
       border-radius: 999px;
-      font-size: 13px;
+      font-size: clamp(0.75rem, 1vw, 1.1rem);
       font-weight: 800;
-      color: var(--success);
+      color: var(--emerald-light);
+      letter-spacing: 1px;
     }
 
     .live-dot {
-      width: 10px;
-      height: 10px;
-      background: var(--success);
+      width: 12px;
+      height: 12px;
+      background: var(--emerald);
       border-radius: 50%;
-      box-shadow: 0 0 10px var(--success);
-      animation: pulse 1.5s infinite;
+      box-shadow: 0 0 12px var(--emerald);
+      animation: beaconPulse 1.6s infinite ease-in-out;
     }
 
-    @keyframes pulse {
-      0% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-      100% { opacity: 1; transform: scale(1); }
+    @keyframes beaconPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.5; }
     }
 
-    .clock {
-      font-size: 20px;
-      font-weight: 800;
+    .clock-group {
+      text-align: right;
+    }
+
+    .clock-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.4rem, 2.4vw, 2.8rem);
+      font-weight: 900;
+      color: #FFFFFF;
       font-variant-numeric: tabular-nums;
+      line-height: 1;
+      letter-spacing: -0.5px;
     }
 
-    .lang-btn {
+    .clock-date {
+      font-size: clamp(0.75rem, 0.95vw, 1.1rem);
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .tv-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tv-btn {
       background: #1E293B;
-      color: var(--teal-light);
-      border: 1px solid var(--teal);
-      padding: 6px 14px;
-      border-radius: 8px;
+      color: #E2E8F0;
+      border: 1px solid var(--border-bright);
+      padding: 8px 14px;
+      border-radius: 10px;
       font-weight: 700;
       cursor: pointer;
-      font-size: 13px;
+      font-size: clamp(0.75rem, 0.9vw, 1rem);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
     }
 
+    .tv-btn:hover {
+      background: #334155;
+      color: #FFF;
+      border-color: var(--teal-light);
+    }
+
+    /* ================= EMERGENCY BANNER ================= */
     .emergency-banner {
       display: none;
-      background: #78350F;
-      border-bottom: 2px solid var(--warning);
+      background: linear-gradient(90deg, #7F1D1D 0%, #991B1B 50%, #7F1D1D 100%);
+      border-bottom: 2px solid var(--crimson);
       padding: 12px 32px;
-      font-size: 16px;
+      font-size: clamp(1rem, 1.3vw, 1.6rem);
       font-weight: 800;
-      color: #FEF3C7;
+      color: #FEE2E2;
       align-items: center;
-      gap: 12px;
+      justify-content: center;
+      gap: 14px;
+      box-shadow: 0 4px 20px var(--crimson-glow);
     }
 
+    /* ================= MAIN 4K BOARD GRID ================= */
     main {
       flex: 1;
-      padding: 24px;
+      padding: clamp(16px, 2.2vh, 32px) clamp(20px, 2.5vw, 44px);
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-      gap: 24px;
-      align-items: start;
+      grid-template-columns: repeat(auto-fit, minmax(clamp(320px, 28vw, 460px), 1fr));
+      gap: clamp(18px, 2vw, 32px);
+      align-items: stretch;
+      overflow: hidden;
     }
 
-    .doctor-card {
+    .doctor-lane {
       background: var(--card-bg);
       border: 2px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      border-radius: clamp(18px, 2vw, 28px);
+      padding: clamp(18px, 2.2vh, 30px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .doctor-lane::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--teal) 0%, var(--emerald) 100%);
     }
 
     .doctor-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 16px;
-      margin-bottom: 20px;
+      align-items: flex-start;
+      border-bottom: 1.5px solid var(--border);
+      padding-bottom: clamp(12px, 1.6vh, 20px);
+      margin-bottom: clamp(14px, 1.8vh, 22px);
+    }
+
+    .doc-meta {
+      flex: 1;
+      padding-right: 12px;
     }
 
     .doctor-name {
-      font-size: 22px;
-      font-weight: 800;
+      font-size: clamp(1.25rem, 1.8vw, 2.2rem);
+      font-weight: 900;
+      color: #FFFFFF;
+      letter-spacing: -0.2px;
+      line-height: 1.15;
     }
 
-    .doctor-pace {
-      font-size: 13px;
-      color: var(--text-muted);
+    .doctor-specialty {
+      font-size: clamp(0.75rem, 1vw, 1.2rem);
+      font-weight: 700;
+      color: var(--teal-light);
       margin-top: 4px;
     }
 
+    .doctor-pace-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: clamp(0.7rem, 0.85vw, 1rem);
+      font-weight: 700;
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.7);
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
     .room-badge {
-      background: var(--teal);
-      border-radius: 12px;
-      padding: 8px 16px;
+      background: linear-gradient(135deg, #0D9488 0%, #0891B2 100%);
+      border-radius: clamp(12px, 1.4vw, 18px);
+      padding: clamp(8px, 1.2vh, 14px) clamp(14px, 1.5vw, 24px);
       text-align: center;
+      box-shadow: 0 6px 20px rgba(13, 148, 136, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     .room-label {
-      font-size: 11px;
-      font-weight: 800;
+      font-size: clamp(0.65rem, 0.85vw, 1rem);
+      font-weight: 900;
       color: #CCFBF1;
       text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .room-number {
-      font-size: 24px;
-      font-weight: 900;
-      color: #FFFFFF;
-    }
-
-    .now-serving-box {
-      background: var(--card-inner);
-      border: 2px solid var(--success);
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      margin-bottom: 20px;
-      box-shadow: 0 0 25px rgba(34, 197, 94, 0.1);
-    }
-
-    .serving-title {
-      font-size: 14px;
-      font-weight: 800;
-      color: var(--success);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-    }
-
-    .serving-number {
-      font-size: 84px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.8rem, 2.8vw, 3.4rem);
       font-weight: 900;
       color: #FFFFFF;
       line-height: 1;
-      margin: 12px 0;
+      margin-top: 2px;
+    }
+
+    /* 25-Meter Viewing Hero Box */
+    .now-serving-card {
+      background: radial-gradient(circle at 50% 40%, rgba(16, 185, 129, 0.12) 0%, rgba(9, 14, 26, 0.9) 80%);
+      border: 2px solid var(--emerald);
+      border-radius: clamp(16px, 1.8vw, 24px);
+      padding: clamp(16px, 2vh, 26px) clamp(16px, 1.5vw, 24px);
+      text-align: center;
+      margin-bottom: clamp(14px, 1.8vh, 22px);
+      position: relative;
+      box-shadow: 0 0 35px rgba(16, 185, 129, 0.2);
+    }
+
+    .serving-status-header {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: clamp(0.8rem, 1.1vw, 1.3rem);
+      font-weight: 900;
+      color: var(--emerald-light);
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+    }
+
+    .serving-token-wrapper {
+      position: relative;
+      display: inline-block;
+      margin: clamp(8px, 1vh, 16px) 0;
+    }
+
+    /* Concentric Pulse Glow Rings */
+    .pulse-glow-ring {
+      position: absolute;
+      top: -12px;
+      left: -20px;
+      right: -20px;
+      bottom: -12px;
+      border-radius: 999px;
+      border: 2px solid var(--emerald);
+      animation: pulseGlowRing 2.2s infinite cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      pointer-events: none;
+    }
+
+    .pulse-glow-ring.secondary {
+      animation: pulseGlowRing 2.2s infinite cubic-bezier(0.25, 0.46, 0.45, 0.94) 1.1s;
+    }
+
+    @keyframes pulseGlowRing {
+      0% {
+        transform: scale(0.92);
+        opacity: 0.9;
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8);
+      }
+      70% {
+        transform: scale(1.15);
+        opacity: 0.2;
+        box-shadow: 0 0 25px 15px rgba(16, 185, 129, 0);
+      }
+      100% {
+        transform: scale(1.22);
+        opacity: 0;
+        box-shadow: 0 0 35px 20px rgba(16, 185, 129, 0);
+      }
+    }
+
+    .serving-token-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(4.2rem, 7.2vw, 8.8rem);
+      font-weight: 900;
+      color: #FFFFFF;
+      line-height: 1;
       letter-spacing: -2px;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 30px rgba(16, 185, 129, 0.5);
     }
 
-    .serving-name {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    .next-queue {
-      background: #0B1120;
-      border-radius: 14px;
-      padding: 16px;
-    }
-
-    .next-title {
-      font-size: 13px;
+    .serving-patient-name {
+      font-size: clamp(1.1rem, 1.5vw, 1.8rem);
       font-weight: 800;
-      color: var(--text-muted);
+      color: #E2E8F0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 90%;
+      margin: 0 auto;
+    }
+
+    .serving-timer {
+      font-size: clamp(0.75rem, 0.95vw, 1.1rem);
+      font-weight: 700;
+      color: var(--teal-light);
+      margin-top: 6px;
+    }
+
+    .next-queue-box {
+      background: var(--card-inner);
+      border: 1.5px solid var(--border);
+      border-radius: clamp(14px, 1.6vw, 20px);
+      padding: clamp(12px, 1.6vh, 20px);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .next-queue-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: clamp(0.75rem, 0.9vw, 1.1rem);
+      font-weight: 900;
+      color: var(--text-subtle);
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 12px;
+      margin-bottom: clamp(10px, 1.2vh, 16px);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .queue-list {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 1vh, 12px);
+      flex: 1;
+      justify-content: space-around;
     }
 
     .queue-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .queue-row:last-child {
-      border-bottom: none;
+      padding: clamp(6px, 0.8vh, 10px) clamp(8px, 1vw, 12px);
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 10px;
+      border: 1px solid transparent;
+      transition: all 0.2s;
     }
 
     .queue-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: clamp(8px, 1vw, 14px);
     }
 
     .queue-index {
-      font-size: 14px;
-      font-weight: 700;
-      color: #64748B;
-      width: 20px;
+      font-size: clamp(0.85rem, 1.1vw, 1.3rem);
+      font-weight: 800;
+      color: var(--text-subtle);
+      min-width: 24px;
     }
 
-    .queue-number {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--text);
+    .queue-token {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(1.1rem, 1.5vw, 1.8rem);
+      font-weight: 900;
+      color: #FFFFFF;
+      font-variant-numeric: tabular-nums;
     }
 
     .queue-name {
-      font-size: 15px;
-      font-weight: 600;
+      font-size: clamp(0.95rem, 1.25vw, 1.5rem);
+      font-weight: 700;
       color: #CBD5E1;
     }
 
     .priority-badge {
-      background: var(--urgent);
-      color: #FFF;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 4px;
+      background: var(--crimson);
+      color: #FFFFFF;
+      font-size: clamp(0.7rem, 0.85vw, 1rem);
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 0 10px var(--crimson-glow);
     }
 
-    .eta-badge {
-      font-size: 14px;
-      font-weight: 700;
+    .eta-pill {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: clamp(0.85rem, 1.1vw, 1.35rem);
+      font-weight: 800;
       color: var(--teal-light);
     }
 
+    /* ================= FOOTER ================= */
     footer {
-      background: var(--card-inner);
-      border-top: 1px solid var(--border);
-      padding: 12px 32px;
-      text-align: center;
-      font-size: 14px;
-      font-weight: 600;
-      color: #CBD5E1;
+      background: rgba(9, 14, 26, 0.95);
+      border-top: 1.5px solid var(--border);
+      padding: clamp(10px, 1.4vh, 16px) clamp(24px, 3vw, 48px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: clamp(0.8rem, 1vw, 1.2rem);
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .footer-ticker {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
   </style>
 </head>
 <body>
 
+  <!-- ================= TOP HEADER ================= -->
   <header>
-    <div>
-      <div class="brand-title" id="hospitalTitle">DISTRICT HQ HOSPITAL</div>
-      <div class="brand-subtitle" id="deptTitle">LIVE OPD QUEUE MONITOR</div>
-    </div>
-    <div class="header-right">
-      <div class="live-badge">
-        <div class="live-dot"></div>
-        <span id="liveText">LIVE</span>
+    <div class="brand-group">
+      <div class="brand-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/>
+        </svg>
       </div>
-      <div class="clock" id="clockDisplay">--:--:--</div>
-      <button class="lang-btn" id="langToggle">हिन्दी</button>
+      <div>
+        <div class="brand-title">
+          <span id="hospitalTitle">District HQ Hospital</span>
+          <span class="squad-tag">BYTE FORCE</span>
+        </div>
+        <div class="brand-subtitle" id="deptTitle">Main OPD Wing · Multi-Doctor Queue Monitor</div>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="live-beacon">
+        <div class="live-dot"></div>
+        <span id="liveStatusText">LIVE REALTIME FEED</span>
+      </div>
+      <div class="clock-group">
+        <div class="clock-time" id="kioskClock">--:--:--</div>
+        <div class="clock-date" id="kioskDate">--------, -- --- ----</div>
+      </div>
+      <div class="tv-controls">
+        <button class="tv-btn" onclick="testAudioCall()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+          <span>Test Chime</span>
+        </button>
+        <button class="tv-btn" onclick="toggleFullscreen()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+          <span>Fullscreen TV</span>
+        </button>
+      </div>
     </div>
   </header>
 
+  <!-- ================= EMERGENCY BANNER ================= -->
   <div class="emergency-banner" id="emergencyBanner">
-    <span>⚠️</span>
-    <span id="emergencyMsg">Doctor called to emergency. Consultations paused.</span>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span id="emergencyMsg">Doctor called to ICU emergency surgery. Consultations temporarily paused.</span>
   </div>
 
+  <!-- ================= MAIN LANES GRID ================= -->
   <main id="boardGrid">
-    <div style="text-align:center; padding: 40px; color: var(--text-muted); font-size: 18px; width: 100%;">
-      Connecting to hospital queue system...
+    <div style="text-align:center; padding: 60px; color: var(--text-muted); font-size: 22px; grid-column: 1/-1;">
+      Connecting to hospital live queue stream...
     </div>
   </main>
 
+  <!-- ================= FOOTER TICKER ================= -->
   <footer>
-    <span id="footerTip">💡 Scan the QR at the reception counter on your phone to track your turn and step out safely.</span>
+    <div class="footer-ticker">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/></svg>
+      <span id="footerTip">Scan QR on your paper token or reception counter to track your live wait time on your phone.</span>
+    </div>
+    <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.9em; color: var(--text-subtle);">
+      QTime 4K Engine v2026.2 · Squad: Byte Force (@jaimin229)
+    </div>
   </footer>
 
   <script>
     const SUPABASE_URL = 'https://admwuakelunofmpkalji.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkbXd1YWtlbHVub2ZtcGthbGppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwODc2ODAsImV4cCI6MjEwNDY2MzY4MH0.pw1Xncy4lZovgM0IAZ4GpI3pSzMGuw0OFjl6BRRedT0';
-    
     const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let currentLang = 'en';
-    let lastCalledTokenNumber = null;
+    let lastCalledMap = new Map();
+    let wakeLock = null;
 
-    const DICT = {
+    // Strict Pure Devanagari Hindi (ZERO Urdu words)
+    const I18N = {
       en: {
+        deptTitle: 'Main OPD Wing · Multi-Doctor Queue Monitor',
         nowServing: 'NOW SERVING',
         nextUp: 'NEXT IN QUEUE',
         room: 'ROOM',
+        estWait: 'EST. WAIT',
         avgPace: 'Avg Pace',
         min: 'min',
-        empty: 'No waiting patients',
-        footerTip: '💡 Scan the QR at the reception counter on your phone to track your turn and step out safely.',
-        langBtn: 'हिन्दी'
+        ready: 'Consultation Room Ready',
+        emptyQ: 'No waiting patients in queue',
+        footerTip: 'Scan QR on your paper token or reception counter to track your live wait time on your phone.'
       },
       hi: {
-        nowServing: 'अभी परामर्श जारी है',
-        nextUp: 'अगले मरीज़',
-        room: 'कमरा',
+        deptTitle: 'मुख्य ओपीडी विंग · बहु-चिकित्सक कतार मॉनिटर',
+        nowServing: 'वर्तमान में परामर्श जारी',
+        nextUp: 'कतार में अगले प्रतीक्षारत रोगी',
+        room: 'कक्ष',
+        estWait: 'प्रतीक्षा समय',
         avgPace: 'औसत समय',
         min: 'मिनट',
-        empty: 'कतार में कोई मरीज़ प्रतीक्षारत नहीं है',
-        footerTip: '💡 अपने फोन पर काउंटर पर दिया गया QR स्कैन करें और अपनी बारी सुरक्षित ट्रैक करें।',
-        langBtn: 'EN'
+        ready: 'परामर्श कक्ष तैयार है',
+        emptyQ: 'कतार में कोई रोगी नहीं है',
+        footerTip: 'अपने टोकन पर दिया गया QR स्कैन करें और मोबाइल पर अपनी बारी देखें।'
       }
     };
 
-    // Clock
-    function updateClock() {
-      const now = new Date();
-      document.getElementById('clockDisplay').textContent = now.toLocaleTimeString();
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
+    // ================= ACOUSTIC DUAL-FREQUENCY CHIME =================
+    class HospitalAcousticChime {
+      constructor() { this.ctx = null; }
 
-    // Audio chime using Web Audio API
-    function playChime() {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
+      initContext() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioCtx();
+        }
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+        return this.ctx;
+      }
 
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.2); // A5
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+      playCallChime() {
+        try {
+          const ctx = this.initContext();
+          const now = ctx.currentTime;
+          const compressor = ctx.createDynamicsCompressor();
+          compressor.threshold.setValueAtTime(-10, now);
+          compressor.ratio.setValueAtTime(12, now);
+          compressor.connect(ctx.destination);
 
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.8);
-      } catch (e) {
-        console.log('Audio chime error:', e);
+          this.synthesizeBellTone(ctx, compressor, 587.33, now, 0.35, 0.38);
+          this.synthesizeBellTone(ctx, compressor, 880.00, now + 0.18, 0.40, 1.15);
+        } catch (err) {
+          console.warn('Audio Chime Error:', err);
+        }
+      }
+
+      synthesizeBellTone(ctx, destination, freq, startTime, peakGain, duration) {
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(freq, startTime);
+
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freq * 2, startTime);
+
+        gain1.gain.setValueAtTime(0.0001, startTime);
+        gain1.gain.linearRampToValueAtTime(peakGain, startTime + 0.015);
+        gain1.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+        gain2.gain.setValueAtTime(0.0001, startTime);
+        gain2.gain.linearRampToValueAtTime(peakGain * 0.28, startTime + 0.012);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, startTime + (duration * 0.6));
+
+        osc1.connect(gain1);
+        gain1.connect(destination);
+        osc2.connect(gain2);
+        gain2.connect(destination);
+
+        osc1.start(startTime);
+        osc1.stop(startTime + duration + 0.05);
+        osc2.start(startTime);
+        osc2.stop(startTime + duration + 0.05);
       }
     }
 
-    // Toggle Language
-    document.getElementById('langToggle').addEventListener('click', () => {
+    const chime = new HospitalAcousticChime();
+
+    // ================= SPEECH SYNTHESIS ANNOUNCER =================
+    class KioskSpeechAnnouncer {
+      constructor(chimeEngine) {
+        this.chime = chimeEngine;
+        this.queue = [];
+        this.isAnnouncing = false;
+        this.voices = [];
+
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.onvoiceschanged = () => {
+            this.voices = window.speechSynthesis.getVoices();
+          };
+          this.voices = window.speechSynthesis.getVoices();
+        }
+      }
+
+      queueCall(tokenNumber, roomNumber) {
+        this.queue.push({ tokenNumber, roomNumber });
+        if (!this.isAnnouncing) this.processQueue();
+      }
+
+      processQueue() {
+        if (this.queue.length === 0) {
+          this.isAnnouncing = false;
+          return;
+        }
+
+        this.isAnnouncing = true;
+        const { tokenNumber, roomNumber } = this.queue.shift();
+
+        this.chime.playCallChime();
+
+        setTimeout(() => {
+          this.speakBilingual(tokenNumber, roomNumber, () => {
+            setTimeout(() => this.processQueue(), 600);
+          });
+        }, 450);
+      }
+
+      speakBilingual(tokenNumber, roomNumber, onComplete) {
+        if (!('speechSynthesis' in window)) {
+          if (onComplete) onComplete();
+          return;
+        }
+
+        const hindiVoice = this.voices.find(v => v.lang.startsWith('hi')) || null;
+        const englishVoice = this.voices.find(v => v.lang === 'en-IN') || this.voices.find(v => v.lang.startsWith('en')) || null;
+
+        const engText = `Token number ${tokenNumber}, please proceed to Room ${roomNumber}.`;
+        const engUtterance = new SpeechSynthesisUtterance(engText);
+        engUtterance.lang = 'en-IN';
+        if (englishVoice) engUtterance.voice = englishVoice;
+        engUtterance.rate = 0.88;
+
+        const hiText = `टोकन संख्या ${tokenNumber}, परामर्श कक्ष ${roomNumber} में जाएं।`;
+        const hiUtterance = new SpeechSynthesisUtterance(hiText);
+        hiUtterance.lang = 'hi-IN';
+        if (hindiVoice) hiUtterance.voice = hindiVoice;
+        hiUtterance.rate = 0.88;
+
+        engUtterance.onend = () => {
+          setTimeout(() => {
+            hiUtterance.onend = () => onComplete && onComplete();
+            hiUtterance.onerror = () => onComplete && onComplete();
+            window.speechSynthesis.speak(hiUtterance);
+          }, 500);
+        };
+
+        engUtterance.onerror = () => {
+          window.speechSynthesis.speak(hiUtterance);
+        };
+
+        window.speechSynthesis.speak(engUtterance);
+      }
+    }
+
+    const announcer = new KioskSpeechAnnouncer(chime);
+
+    function testAudioCall() {
+      announcer.queueCall(4, 3);
+    }
+
+    // ================= DIGITAL CLOCK =================
+    function updateDigitalClock() {
+      const now = new Date();
+      document.getElementById('kioskClock').textContent = now.toLocaleTimeString('en-US', { 
+        hour12: true, 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit' 
+      });
+
+      const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('kioskDate').textContent = now.toLocaleDateString(currentLang === 'hi' ? 'hi-IN' : 'en-US', dateOptions);
+    }
+    setInterval(updateDigitalClock, 1000);
+    updateDigitalClock();
+
+    // Auto-rotate language every 18 seconds
+    setInterval(() => {
       currentLang = currentLang === 'en' ? 'hi' : 'en';
-      document.getElementById('langToggle').textContent = DICT[currentLang].langBtn;
-      document.getElementById('footerTip').textContent = DICT[currentLang].footerTip;
+      const d = I18N[currentLang];
+      document.getElementById('deptTitle').textContent = d.deptTitle;
+      document.getElementById('footerTip').textContent = d.footerTip;
       fetchAndRenderBoard();
+    }, 18000);
+
+    async function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        try {
+          await document.documentElement.requestFullscreen();
+          if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+        } catch (e) {}
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+      if (e.key === 'a' || e.key === 'A') testAudioCall();
     });
 
+    // Auto-hide cursor on smart TV after 3 seconds inactivity
+    let mouseTimer = null;
+    window.addEventListener('mousemove', () => {
+      document.body.classList.remove('tv-idle');
+      clearTimeout(mouseTimer);
+      mouseTimer = setTimeout(() => {
+        document.body.classList.add('tv-idle');
+      }, 3000);
+    });
+
+    // ================= SUPABASE DATA FETCH =================
     async function fetchAndRenderBoard() {
       try {
         const { data: clinics } = await supa.from('clinics').select('*');
         if (!clinics || clinics.length === 0) return;
         const clinic = clinics[0];
 
-        // Emergency banner
+        document.getElementById('hospitalTitle').textContent = clinic.hospital || 'District HQ Hospital';
+
         const emBanner = document.getElementById('emergencyBanner');
         if (clinic.is_paused) {
           emBanner.style.display = 'flex';
-          document.getElementById('emergencyMsg').textContent = clinic.pause_reason || 'Queue Paused — Doctor called to emergency.';
+          document.getElementById('emergencyMsg').textContent = clinic.pause_reason || 'Doctor emergency ICU surgery. Consultations temporarily paused.';
         } else {
           emBanner.style.display = 'none';
         }
@@ -411,87 +836,114 @@
 
         const boardGrid = document.getElementById('boardGrid');
         boardGrid.innerHTML = '';
+        const d = I18N[currentLang];
 
-        const d = DICT[currentLang];
+        (doctors || []).forEach(doc => {
+          let docName = doc.name;
+          let specialty = 'General OPD';
+          const match = doc.name.match(/^(.*?)\s*\((.*?)\)$/);
+          if (match) {
+            docName = match[1];
+            specialty = match[2];
+          }
 
-        doctors.forEach(doc => {
           const docQueue = (queueRows || []).filter(r => r.doctor_id === doc.id);
           const activeServing = docQueue.find(r => r.status === 'called');
           const nextList = docQueue.filter(r => r.status === 'issued' || r.status === 'requeued').slice(0, 4);
 
-          // Check for new call to ring chime
-          if (activeServing && activeServing.number !== lastCalledTokenNumber) {
-            lastCalledTokenNumber = activeServing.number;
-            playChime();
+          if (activeServing && activeServing.number !== lastCalledMap.get(doc.id)) {
+            const isInitialLoad = !lastCalledMap.has(doc.id);
+            lastCalledMap.set(doc.id, activeServing.number);
+            if (!isInitialLoad) {
+              announcer.queueCall(activeServing.number, doc.room);
+            }
           }
 
           const card = document.createElement('div');
-          card.className = 'doctor-card';
+          card.className = 'doctor-lane';
 
-          const nextRowsHtml = nextList.length === 0 
-            ? `<div style="color:var(--text-muted); font-size:14px; padding:8px 0;">${d.empty}</div>`
+          const nextRowsHtml = nextList.length === 0
+            ? `<div style="color:var(--text-subtle); font-size:16px; padding:18px 0; text-align:center;">${d.emptyQ}</div>`
             : nextList.map((item, idx) => `
                 <div class="queue-row">
                   <div class="queue-left">
                     <span class="queue-index">${idx + 1}.</span>
-                    <span class="queue-number">#${item.number}</span>
+                    <span class="queue-token">#${item.number}</span>
                     <span class="queue-name">${item.display_label}</span>
                   </div>
-                  ${item.is_priority 
-                    ? `<span class="priority-badge">PRIORITY</span>`
-                    : `<span class="eta-badge">~${(idx + 1) * Math.round(doc.avg_consult_secs / 60)} ${d.min}</span>`}
+                  <div>
+                    ${item.is_priority 
+                      ? `<span class="priority-badge">PRIORITY</span>`
+                      : `<span class="eta-pill">~${(idx + 1) * Math.round(doc.avg_consult_secs / 60)} ${d.min}</span>`}
+                  </div>
                 </div>
               `).join('');
 
           card.innerHTML = `
-            <div class="doctor-header">
-              <div>
-                <div class="doctor-name">${doc.name}</div>
-                <div class="doctor-pace">${d.avgPace}: ~${Math.round(doc.avg_consult_secs / 60)} ${d.min}</div>
+            <div>
+              <div class="doctor-header">
+                <div class="doc-meta">
+                  <div class="doctor-name">${docName}</div>
+                  <div class="doctor-specialty">${specialty}</div>
+                  <div class="doctor-pace-pill">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span>${d.avgPace}: ~${Math.round(doc.avg_consult_secs / 60)} ${d.min}</span>
+                  </div>
+                </div>
+                <div class="room-badge">
+                  <div class="room-label">${d.room}</div>
+                  <div class="room-number">${doc.room}</div>
+                </div>
               </div>
-              <div class="room-badge">
-                <div class="room-label">${d.room}</div>
-                <div class="room-number">${doc.room}</div>
+
+              <div class="now-serving-card">
+                <div class="serving-status-header">
+                  <span style="display:inline-block; width:8px; height:8px; background:var(--emerald); border-radius:50%;"></span>
+                  <span>${d.nowServing}</span>
+                </div>
+
+                <div class="serving-token-wrapper">
+                  <div class="pulse-glow-ring"></div>
+                  <div class="pulse-glow-ring secondary"></div>
+                  <div class="serving-token-number">${activeServing ? '#' + activeServing.number : '--'}</div>
+                </div>
+
+                <div class="serving-patient-name">
+                  ${activeServing ? activeServing.display_label : d.ready}
+                </div>
+                <div class="serving-timer">
+                  ${activeServing ? 'In Consultation' : 'Waiting for next patient'}
+                </div>
               </div>
             </div>
 
-            <div class="now-serving-box">
-              <div class="serving-title">${d.nowServing}</div>
-              <div class="serving-number">${activeServing ? '#' + activeServing.number : '--'}</div>
-              <div class="serving-name">${activeServing ? activeServing.display_label : 'Consultation Room Ready'}</div>
-            </div>
-
-            <div class="next-queue">
-              <div class="next-title">${d.nextUp} (${nextList.length})</div>
-              ${nextRowsHtml}
+            <div class="next-queue-box">
+              <div class="next-queue-header">
+                <span>${d.nextUp} (${nextList.length})</span>
+                <span>${d.estWait}</span>
+              </div>
+              <div class="queue-list">
+                ${nextRowsHtml}
+              </div>
             </div>
           `;
+
           boardGrid.appendChild(card);
         });
-
       } catch (err) {
-        console.error('Error fetching board:', err);
+        console.error('Error rendering kiosk board:', err);
       }
     }
 
-    // Initial load
     fetchAndRenderBoard();
 
-    // Supabase Realtime Channel
     supa.channel('kiosk-feed')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'tokens' }, () => {
-        fetchAndRenderBoard();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'clinics' }, () => {
-        fetchAndRenderBoard();
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'doctors' }, () => {
-        fetchAndRenderBoard();
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tokens' }, fetchAndRenderBoard)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'clinics' }, fetchAndRenderBoard)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'doctors' }, fetchAndRenderBoard)
       .subscribe();
 
-    // Polling fallback
-    setInterval(fetchAndRenderBoard, 6000);
+    setInterval(fetchAndRenderBoard, 5000);
   </script>
 </body>
 </html>

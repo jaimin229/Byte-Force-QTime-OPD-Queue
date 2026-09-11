@@ -17,9 +17,9 @@ describe('QTime Core Queue & Translation Engine', () => {
     expect(t('nowServing')).toBe('अभी परामर्श चल रहा है');
     expect(t('queuePaused')).toBe('कतार अस्थायी रूप से रुकी हुई है');
 
-    // Check parameter replacement in Hindi
+    // Check parameter replacement in pure Hindi (No Urdu)
     const translated = t('youAreNext', {room: 4});
-    expect(translated).toContain('कमरा 4');
+    expect(translated).toContain('कक्ष 4');
   });
 
   test('Claim payload generation and parsing works seamlessly', () => {
