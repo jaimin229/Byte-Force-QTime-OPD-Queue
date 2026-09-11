@@ -3811,6 +3811,189 @@
           </div>
         </div>
 
+        <!-- ================= 1. NEARBY HOSPITALS & LIVE QUEUE EXPLORER ================= -->
+        <div class="patient-card" style="margin-bottom:24px; background:var(--surface); border:1px solid var(--border-subtle); border-radius:16px; padding:24px;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:18px;">
+            <div>
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+                <h2 style="font-size:17px; font-weight:800; color:var(--text-primary); margin:0;">Nearby Hospitals & Live Queue Load</h2>
+              </div>
+              <div style="font-size:12px; color:var(--text-secondary);">Select a verified hospital in your area to view live wait times and pick your preferred doctor.</div>
+            </div>
+            <!-- Distance Filter Pills -->
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button onclick="filterHospitals('all')" class="triage-tab-pill active" id="hFilterAll" style="font-size:11px; padding:4px 10px;">All Nearby</button>
+              <button onclick="filterHospitals('2')" class="triage-tab-pill" id="hFilter2" style="font-size:11px; padding:4px 10px;">&lt; 2 km</button>
+              <button onclick="filterHospitals('5')" class="triage-tab-pill" id="hFilter5" style="font-size:11px; padding:4px 10px;">&lt; 5 km</button>
+            </div>
+          </div>
+
+          <!-- Hospitals Grid -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(270px, 1fr)); gap:14px;" id="nearbyHospitalsGrid">
+            <!-- Hospital 1 -->
+            <div class="hospital-item-card" data-dist="1.2" style="background:var(--surface-elevated); border:2px solid var(--primary-accent); border-radius:12px; padding:16px; display:flex; flex-direction:column; justify-content:space-between; position:relative;">
+              <span style="position:absolute; top:12px; right:12px; background:rgba(56,189,248,0.15); color:var(--primary-accent); border:1px solid rgba(56,189,248,0.3); font-size:10px; font-weight:800; padding:2px 8px; border-radius:12px;">ACTIVE VISIT</span>
+              <div>
+                <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted); margin-bottom:4px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>1.2 km away · Main Campus Wing A</span>
+                </div>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-primary); margin:0 0 6px 0;">District HQ Civil Hospital</h3>
+                <div style="font-size:11px; color:var(--text-secondary); margin-bottom:12px;">Cardiology · Pediatrics · Orthopedics · Gen Medicine</div>
+                <div style="display:flex; align-items:center; gap:8px; font-size:12px; margin-bottom:14px;">
+                  <span style="background:rgba(16,185,129,0.12); color:#10B981; border:1px solid rgba(16,185,129,0.3); padding:3px 8px; border-radius:6px; font-weight:700;">14 Waiting · Normal (~12m)</span>
+                  <span style="color:#F59E0B; font-weight:700;">★ 4.6</span>
+                </div>
+              </div>
+              <button onclick="selectHospitalForVisit('District HQ Civil Hospital', '1.2 km', ['Dr. Rajesh Sharma (Cardiology)', 'Dr. Priya Patel (Pediatrics)', 'Dr. Amit Verma (Orthopedics)', 'Dr. Sunita Rao (Gen Med)'])" style="width:100%; padding:9px; border-radius:8px; background:var(--primary-accent); border:none; color:#000; font-weight:800; font-size:12px; cursor:pointer;">✓ Selected Hospital</button>
+            </div>
+
+            <!-- Hospital 2 -->
+            <div class="hospital-item-card" data-dist="2.8" style="background:var(--surface-elevated); border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted); margin-bottom:4px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>2.8 km away · East Wing</span>
+                </div>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-primary); margin:0 0 6px 0;">City Care Multi-Specialty</h3>
+                <div style="font-size:11px; color:var(--text-secondary); margin-bottom:12px;">Cardiology · ENT · Ophthalmology · Gynecology</div>
+                <div style="display:flex; align-items:center; gap:8px; font-size:12px; margin-bottom:14px;">
+                  <span style="background:rgba(56,189,248,0.12); color:#38BDF8; border:1px solid rgba(56,189,248,0.3); padding:3px 8px; border-radius:6px; font-weight:700;">7 Waiting · Fast (~6m)</span>
+                  <span style="color:#F59E0B; font-weight:700;">★ 4.8</span>
+                </div>
+              </div>
+              <button onclick="selectHospitalForVisit('City Care Multi-Specialty', '2.8 km', ['Dr. Vikram Seth (ENT)', 'Dr. Sunita Rao (Gen Med)', 'Dr. Rania (Pediatrics)'])" style="width:100%; padding:9px; border-radius:8px; background:var(--surface); border:1px solid var(--border-subtle); color:var(--text-primary); font-weight:700; font-size:12px; cursor:pointer;">Select for Visit</button>
+            </div>
+
+            <!-- Hospital 3 -->
+            <div class="hospital-item-card" data-dist="4.5" style="background:var(--surface-elevated); border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted); margin-bottom:4px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>4.5 km away · South Block</span>
+                </div>
+                <h3 style="font-size:16px; font-weight:800; color:var(--text-primary); margin:0 0 6px 0;">Apex Trauma & Surgical Clinic</h3>
+                <div style="font-size:11px; color:var(--text-secondary); margin-bottom:12px;">Trauma Care · Orthopedics · General Surgery</div>
+                <div style="display:flex; align-items:center; gap:8px; font-size:12px; margin-bottom:14px;">
+                  <span style="background:rgba(245,158,11,0.12); color:#F59E0B; border:1px solid rgba(245,158,11,0.3); padding:3px 8px; border-radius:6px; font-weight:700;">24 Waiting · Busy (~28m)</span>
+                  <span style="color:#F59E0B; font-weight:700;">★ 4.4</span>
+                </div>
+              </div>
+              <button onclick="selectHospitalForVisit('Apex Trauma & Surgical Clinic', '4.5 km', ['Dr. Amit Verma (Orthopedics)', 'Dr. Rajesh Sharma (Cardiology)'])" style="width:100%; padding:9px; border-radius:8px; background:var(--surface); border:1px solid var(--border-subtle); color:var(--text-primary); font-weight:700; font-size:12px; cursor:pointer;">Select for Visit</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= 2. SELECT CUSTOM DOCTOR FROM LIST ================= -->
+        <div class="patient-card" id="patientDoctorPickerCard" style="margin-bottom:24px; background:var(--surface); border:1px solid var(--border-subtle); border-radius:16px; padding:24px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+            <div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary-accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg>
+                <h2 style="font-size:17px; font-weight:800; color:var(--text-primary); margin:0;">Select Custom Doctor at <span id="chosenHospitalName" style="color:var(--primary-accent);">District HQ Civil Hospital</span></h2>
+              </div>
+              <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">Pick your specialty physician to join their live Bayesian queue and receive an immediate token.</div>
+            </div>
+            <!-- Department Filter -->
+            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+              <button onclick="filterDoctorsByDept('all')" class="triage-tab-pill active" id="dFilterAll" style="font-size:11px; padding:4px 10px;">All Doctors</button>
+              <button onclick="filterDoctorsByDept('Cardiology')" class="triage-tab-pill" id="dFilterCardio" style="font-size:11px; padding:4px 10px;">Cardiology</button>
+              <button onclick="filterDoctorsByDept('Pediatrics')" class="triage-tab-pill" id="dFilterPedia" style="font-size:11px; padding:4px 10px;">Pediatrics</button>
+              <button onclick="filterDoctorsByDept('Orthopedics')" class="triage-tab-pill" id="dFilterOrtho" style="font-size:11px; padding:4px 10px;">Orthopedics</button>
+              <button onclick="filterDoctorsByDept('General Medicine')" class="triage-tab-pill" id="dFilterGenMed" style="font-size:11px; padding:4px 10px;">Gen Medicine</button>
+            </div>
+          </div>
+
+          <!-- Doctor Cards List -->
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;" id="doctorSelectionGrid">
+            <!-- Doctor 1: Dr. Rajesh Sharma -->
+            <div class="doctor-pick-card" data-dept="Cardiology" style="background:var(--surface-elevated); border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                  <div style="width:40px; height:40px; border-radius:10px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); display:flex; align-items:center; justify-content:center; color:var(--primary-accent);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 2v2"/><path d="M5 2v2"/><path d="M5 3H4a2 2 0 0 0-2 2v4a6 6 0 0 0 12 0V5a2 2 0 0 0-2-2h-1"/><path d="M8 15a6 6 0 0 0 12 0v-3"/><circle cx="20" cy="10" r="2"/></svg>
+                  </div>
+                  <div>
+                    <h3 style="font-size:15px; font-weight:800; color:var(--text-primary); margin:0;">Dr. Rajesh Sharma</h3>
+                    <div style="font-size:12px; color:var(--primary-accent); font-weight:600;">Cardiology · Room 101</div>
+                  </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted); background:var(--surface); padding:8px 10px; border-radius:8px; margin-bottom:12px;">
+                  <span>Queue: <strong style="color:var(--text-primary);">5 waiting</strong></span>
+                  <span>Avg Consult: <strong style="color:var(--text-primary);">~7 min</strong></span>
+                  <span style="color:#10B981; font-weight:700;">Active</span>
+                </div>
+              </div>
+              <button onclick="patientBookDoctorQueue('Dr. Rajesh Sharma', 'Cardiology', 101, 7)" style="width:100%; padding:8px; border-radius:8px; background:var(--primary-accent); border:none; color:#000; font-weight:800; font-size:12px; cursor:pointer;">Book Live Queue Token</button>
+            </div>
+
+            <!-- Doctor 2: Dr. Priya Patel -->
+            <div class="doctor-pick-card" data-dept="Pediatrics" style="background:var(--surface-elevated); border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                  <div style="width:40px; height:40px; border-radius:10px; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); display:flex; align-items:center; justify-content:center; color:#F59E0B;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                  </div>
+                  <div>
+                    <h3 style="font-size:15px; font-weight:800; color:var(--text-primary); margin:0;">Dr. Priya Patel</h3>
+                    <div style="font-size:12px; color:#F59E0B; font-weight:600;">Pediatrics · Room 104</div>
+                  </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted); background:var(--surface); padding:8px 10px; border-radius:8px; margin-bottom:12px;">
+                  <span>Queue: <strong style="color:var(--text-primary);">3 waiting</strong></span>
+                  <span>Avg Consult: <strong style="color:var(--text-primary);">~5 min</strong></span>
+                  <span style="color:#10B981; font-weight:700;">Active</span>
+                </div>
+              </div>
+              <button onclick="patientBookDoctorQueue('Dr. Priya Patel', 'Pediatrics', 104, 5)" style="width:100%; padding:8px; border-radius:8px; background:var(--primary-accent); border:none; color:#000; font-weight:800; font-size:12px; cursor:pointer;">Book Live Queue Token</button>
+            </div>
+
+            <!-- Doctor 3: Dr. Amit Verma -->
+            <div class="doctor-pick-card" data-dept="Orthopedics" style="background:var(--surface-elevated); border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                  <div style="width:40px; height:40px; border-radius:10px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); display:flex; align-items:center; justify-content:center; color:#10B981;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  </div>
+                  <div>
+                    <h3 style="font-size:15px; font-weight:800; color:var(--text-primary); margin:0;">Dr. Amit Verma</h3>
+                    <div style="font-size:12px; color:#10B981; font-weight:600;">Orthopedics · Room 202</div>
+                  </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted); background:var(--surface); padding:8px 10px; border-radius:8px; margin-bottom:12px;">
+                  <span>Queue: <strong style="color:var(--text-primary);">4 waiting</strong></span>
+                  <span>Avg Consult: <strong style="color:var(--text-primary);">~8 min</strong></span>
+                  <span style="color:#10B981; font-weight:700;">Active</span>
+                </div>
+              </div>
+              <button onclick="patientBookDoctorQueue('Dr. Amit Verma', 'Orthopedics', 202, 8)" style="width:100%; padding:8px; border-radius:8px; background:var(--primary-accent); border:none; color:#000; font-weight:800; font-size:12px; cursor:pointer;">Book Live Queue Token</button>
+            </div>
+
+            <!-- Doctor 4: Dr. Sunita Rao -->
+            <div class="doctor-pick-card" data-dept="General Medicine" style="background:var(--surface-elevated); border:1px solid var(--border); border-radius:12px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                  <div style="width:40px; height:40px; border-radius:10px; background:rgba(168,85,247,0.12); border:1px solid rgba(168,85,247,0.3); display:flex; align-items:center; justify-content:center; color:#A855F7;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  </div>
+                  <div>
+                    <h3 style="font-size:15px; font-weight:800; color:var(--text-primary); margin:0;">Dr. Sunita Rao</h3>
+                    <div style="font-size:12px; color:#A855F7; font-weight:600;">General Medicine · Room 3</div>
+                  </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-muted); background:var(--surface); padding:8px 10px; border-radius:8px; margin-bottom:12px;">
+                  <span>Queue: <strong style="color:var(--text-primary);">2 waiting</strong></span>
+                  <span>Avg Consult: <strong style="color:var(--text-primary);">~4 min</strong></span>
+                  <span style="color:#10B981; font-weight:700;">Active</span>
+                </div>
+              </div>
+              <button onclick="patientBookDoctorQueue('Dr. Sunita Rao', 'General Medicine', 3, 4)" style="width:100%; padding:8px; border-radius:8px; background:var(--primary-accent); border:none; color:#000; font-weight:800; font-size:12px; cursor:pointer;">Book Live Queue Token</button>
+            </div>
+          </div>
+        </div>
+
+
         <!-- Active Token Hero Card -->
         <div class="patient-card">
           <div class="patient-hero-top">
@@ -4334,8 +4517,182 @@
 
         </div>
 
+      
+    <!-- ================= HOSPITAL STAFF & ROLE DELEGATION ================= -->
+    <div class="doc-card" style="margin-top:24px; background:var(--surface); border:1px solid var(--border-subtle); border-radius:16px; padding:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary-accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <h2 style="font-size:18px; font-weight:800; color:var(--text-primary); margin:0;">Hospital Staff & Role Delegation</h2>
+          </div>
+          <div style="font-size:13px; color:var(--text-secondary);">Assign operational roles to nurses, receptionists, and clinical assistants. Staff register with your Hospital Join Code.</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <div style="background:var(--surface-elevated); border:1px solid var(--border-subtle); border-radius:10px; padding:6px 14px; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Staff Join Code:</span>
+            <span id="activeStaffJoinCode" style="font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:800; color:var(--primary-accent); letter-spacing:1px;">HOSP-HQ-7821</span>
+            <button onclick="copyStaffJoinCode()" style="background:none; border:none; cursor:pointer; color:var(--text-secondary); padding:2px;" title="Copy Code">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            </button>
+            <button onclick="regenerateStaffJoinCode()" style="background:none; border:none; cursor:pointer; color:var(--text-secondary); padding:2px;" title="Regenerate Code">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            </button>
+          </div>
+          <button onclick="openAddStaffModal()" class="tab-btn active" style="padding:8px 16px; font-size:12px; font-weight:700; display:flex; align-items:center; gap:6px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>+ Assign New Staff</span>
+          </button>
+        </div>
       </div>
-    </section>
+
+      <!-- Staff Table -->
+      <div style="overflow-x:auto;">
+        <table class="doc-queue-table" style="width:100%; border-collapse:collapse;">
+          <thead>
+            <tr>
+              <th>Staff Member</th>
+              <th>Contact Email</th>
+              <th>Assigned Role</th>
+              <th>Desk / Room</th>
+              <th>Status</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="docStaffRosterBody">
+            <tr>
+              <td>
+                <div style="font-weight:700; color:var(--text-primary);">Priya Verma</div>
+                <div style="font-size:11px; color:var(--text-muted);">EMP-2026-081</div>
+              </td>
+              <td style="color:var(--text-secondary); font-size:12px;">priya.verma@hospital.org</td>
+              <td><span class="triage-badge standard" style="background:rgba(56,189,248,0.12); color:#38BDF8; border-color:rgba(56,189,248,0.3);">OPD RECEPTIONIST</span></td>
+              <td style="color:var(--text-secondary); font-size:12px;">Main Token Desk</td>
+              <td><span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; color:#10B981;"><span style="width:6px; height:6px; border-radius:50%; background:#10B981;"></span>Active</span></td>
+              <td style="text-align:right;">
+                <button onclick="removeStaffMember('EMP-2026-081')" style="background:none; border:1px solid rgba(239,68,68,0.3); color:#EF4444; border-radius:6px; padding:4px 8px; font-size:11px; cursor:pointer;">Revoke</button>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight:700; color:var(--text-primary);">Sunita Deshmukh</div>
+                <div style="font-size:11px; color:var(--text-muted);">EMP-2026-089</div>
+              </td>
+              <td style="color:var(--text-secondary); font-size:12px;">sunita.d@hospital.org</td>
+              <td><span class="triage-badge standard" style="background:rgba(245,158,11,0.12); color:#F59E0B; border-color:rgba(245,158,11,0.3);">TRIAGE NURSE</span></td>
+              <td style="color:var(--text-secondary); font-size:12px;">Triage Bay 1</td>
+              <td><span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; color:#10B981;"><span style="width:6px; height:6px; border-radius:50%; background:#10B981;"></span>Active</span></td>
+              <td style="text-align:right;">
+                <button onclick="removeStaffMember('EMP-2026-089')" style="background:none; border:1px solid rgba(239,68,68,0.3); color:#EF4444; border-radius:6px; padding:4px 8px; font-size:11px; cursor:pointer;">Revoke</button>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight:700; color:var(--text-primary);">Dr. Amit Verma</div>
+                <div style="font-size:11px; color:var(--text-muted);">EMP-2026-104</div>
+              </td>
+              <td style="color:var(--text-secondary); font-size:12px;">dr.amit@hospital.org</td>
+              <td><span class="triage-badge standard" style="background:rgba(16,185,129,0.12); color:#10B981; border-color:rgba(16,185,129,0.3);">JUNIOR DOCTOR</span></td>
+              <td style="color:var(--text-secondary); font-size:12px;">Room 103</td>
+              <td><span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; color:#10B981;"><span style="width:6px; height:6px; border-radius:50%; background:#10B981;"></span>Active</span></td>
+              <td style="text-align:right;">
+                <button onclick="removeStaffMember('EMP-2026-104')" style="background:none; border:1px solid rgba(239,68,68,0.3); color:#EF4444; border-radius:6px; padding:4px 8px; font-size:11px; cursor:pointer;">Revoke</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ================= HOSPITAL SAAS SUBSCRIPTION & TIER MANAGEMENT ================= -->
+    <div class="doc-card" style="margin-top:24px; background:var(--surface); border:1px solid var(--border-subtle); border-radius:16px; padding:24px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; margin-bottom:20px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--primary-accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <h2 style="font-size:18px; font-weight:800; color:var(--text-primary); margin:0;">Hospital SaaS Subscription & Tier Management</h2>
+          </div>
+          <div style="font-size:13px; color:var(--text-secondary);">Enterprise queue infrastructure with automated Bayesian scaling, WhatsApp alerts, and ABDM integration.</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="background:rgba(16,185,129,0.12); color:#10B981; border:1px solid rgba(16,185,129,0.3); border-radius:20px; padding:4px 12px; font-size:11px; font-weight:800; letter-spacing:0.5px;">ACTIVE SUBSCRIPTION</span>
+        </div>
+      </div>
+
+      <!-- Usage Telemetry Bar -->
+      <div style="background:var(--surface-elevated); border:1px solid var(--border-subtle); border-radius:12px; padding:16px; margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:13px;">
+          <span style="color:var(--text-primary); font-weight:700;">Monthly Patient Token Quota:</span>
+          <span style="color:var(--primary-accent); font-weight:800; font-family:'JetBrains Mono',monospace;">3,420 / 10,000 Tokens (34.2% Used)</span>
+        </div>
+        <div style="width:100%; height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden;">
+          <div style="width:34.2%; height:100%; background:linear-gradient(90deg, #0284C7, #38BDF8); border-radius:4px;"></div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:11px; color:var(--text-muted);">
+          <span>Active Plan: <strong>Professional Hospital ($99/mo)</strong></span>
+          <span>Next Auto-Renewal: <strong>11 October 2026</strong></span>
+        </div>
+      </div>
+
+      <!-- SaaS Tiers Grid -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
+        <!-- Tier 1: Starter Clinic -->
+        <div style="background:var(--surface-elevated); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px;">SMALL CLINIC</div>
+            <h3 style="font-size:18px; font-weight:800; color:var(--text-primary); margin:6px 0;">Starter Clinic</h3>
+            <div style="font-size:24px; font-weight:900; color:var(--text-primary); font-family:'JetBrains Mono',monospace; margin-bottom:12px;">$29<span style="font-size:12px; font-weight:600; color:var(--text-muted);"> / month (₹2,499)</span></div>
+            <ul style="list-style:none; padding:0; margin:0 0 20px 0; font-size:12px; color:var(--text-secondary); line-height:1.8;">
+              <li>✓ 1 Doctor Consultation Lane</li>
+              <li>✓ 4K Waiting Hall TV Kiosk Display</li>
+              <li>✓ Up to 100 Patient Tokens / day</li>
+              <li>✓ Standard FIFO Queue Management</li>
+              <li>✓ Email Support</li>
+            </ul>
+          </div>
+          <button onclick="upgradeSaaSTier('starter')" style="width:100%; padding:10px; border-radius:8px; background:var(--surface); border:1px solid var(--border-subtle); color:var(--text-primary); font-weight:700; font-size:12px; cursor:pointer;">Switch to Starter</button>
+        </div>
+
+        <!-- Tier 2: Professional Hospital (Active) -->
+        <div style="background:var(--surface-elevated); border:2px solid var(--primary-accent); border-radius:12px; padding:20px; display:flex; flex-direction:column; justify-content:space-between; position:relative;">
+          <span style="position:absolute; top:-10px; right:16px; background:var(--primary-accent); color:#000; font-size:10px; font-weight:800; padding:2px 8px; border-radius:10px; text-transform:uppercase;">CURRENT PLAN</span>
+          <div>
+            <div style="font-size:12px; font-weight:800; color:var(--primary-accent); text-transform:uppercase; letter-spacing:0.8px;">MID-SIZE HOSPITAL</div>
+            <h3 style="font-size:18px; font-weight:800; color:var(--text-primary); margin:6px 0;">Professional Multi-Specialty</h3>
+            <div style="font-size:24px; font-weight:900; color:var(--primary-accent); font-family:'JetBrains Mono',monospace; margin-bottom:12px;">$99<span style="font-size:12px; font-weight:600; color:var(--text-muted);"> / month (₹7,999)</span></div>
+            <ul style="list-style:none; padding:0; margin:0 0 20px 0; font-size:12px; color:var(--text-secondary); line-height:1.8;">
+              <li>✓ Up to 10 Doctor Consultation Lanes</li>
+              <li>✓ Empirical Bayes Wait-Time Predictor</li>
+              <li>✓ WhatsApp & SMS 5-Away Notifications</li>
+              <li>✓ Staff Role Delegation & IAM Controls</li>
+              <li>✓ 30-Minute Lab & Diagnostic Holds</li>
+              <li>✓ Priority 24/7 WhatsApp Support</li>
+            </ul>
+          </div>
+          <button disabled style="width:100%; padding:10px; border-radius:8px; background:rgba(56,189,248,0.15); border:1px solid var(--primary-accent); color:var(--primary-accent); font-weight:800; font-size:12px; cursor:default;">✓ Active Plan</button>
+        </div>
+
+        <!-- Tier 3: Enterprise Medical College -->
+        <div style="background:var(--surface-elevated); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.8px;">TERTIARY & DISTRICT HQ</div>
+            <h3 style="font-size:18px; font-weight:800; color:var(--text-primary); margin:6px 0;">Enterprise Medical College</h3>
+            <div style="font-size:24px; font-weight:900; color:var(--text-primary); font-family:'JetBrains Mono',monospace; margin-bottom:12px;">$299<span style="font-size:12px; font-weight:600; color:var(--text-muted);"> / month (₹24,999)</span></div>
+            <ul style="list-style:none; padding:0; margin:0 0 20px 0; font-size:12px; color:var(--text-secondary); line-height:1.8;">
+              <li>✓ Unlimited Lanes & Multi-Wing Kiosks</li>
+              <li>✓ Ayushman Bharat (ABDM/ABHA) Connect</li>
+              <li>✓ Hospital EHR/HIS Webhook Integration</li>
+              <li>✓ Dedicated Account Manager & 99.99% SLA</li>
+              <li>✓ Custom AI Queue Analytics Dashboard</li>
+            </ul>
+          </div>
+          <button onclick="upgradeSaaSTier('enterprise')" style="width:100%; padding:10px; border-radius:8px; background:var(--primary-accent); border:none; color:#000; font-weight:800; font-size:12px; cursor:pointer;">Upgrade to Enterprise</button>
+        </div>
+      </div>
+    </div>
+
+      </div>
+    </section>>
 
     <!-- ================= 4. HOSPITAL IAM & LOGIN PORTAL ================= -->
     <section id="viewLogin" role="tabpanel" aria-labelledby="tabLogin" style="display:none;">
@@ -4424,6 +4781,25 @@
           </div>
 
           <!-- A. Doctor Sign In Form -->
+          
+          <!-- Google Institutional Sign-In Button -->
+          <div style="margin-bottom:16px;">
+            <button type="button" onclick="handleDoctorGoogleLogin()" style="width:100%; display:flex; align-items:center; justify-content:center; gap:10px; padding:11px 16px; border-radius:10px; background:#FFFFFF; color:#1F2937; border:1px solid #E5E7EB; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition:transform 0.15s ease;">
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Continue with Google Institutional Account</span>
+            </button>
+            <div style="display:flex; align-items:center; gap:10px; margin:14px 0 10px 0;">
+              <div style="flex:1; height:1px; background:var(--border);"></div>
+              <span style="font-size:11px; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Or with password</span>
+              <div style="flex:1; height:1px; background:var(--border);"></div>
+            </div>
+          </div>
+
           <form id="formLoginDoctor" onsubmit="event.preventDefault(); handleDoctorLoginSubmit();">
             <div class="form-group">
               <div class="form-label-row">
@@ -4496,6 +4872,12 @@
           </form>
 
           <!-- C. Patient Sign In Form -->
+          
+          <div style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.2); border-radius:10px; padding:10px 14px; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary-accent)" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span style="font-size:12px; color:var(--text-primary); font-weight:600;">No Google account needed for patients. Simply use your Username/Phone & Password.</span>
+          </div>
+    
           <form id="formLoginPatient" style="display:none;" onsubmit="event.preventDefault(); handlePatientSearch();">
             <div class="form-group">
               <div class="form-label-row">
@@ -7134,41 +7516,62 @@
 
     function toggleSteppingOut() {
       isSteppingOut = !isSteppingOut;
-      const btn = document.getElementById('pStepBtn');
-      const d = I18N[currentLang];
+      const btn = document.getElementById('pStepToggleBtn');
+      const d = I18N[currentLang] || {};
       
+      if (btn) {
+        btn.classList.toggle('active', isSteppingOut);
+        btn.setAttribute('aria-checked', isSteppingOut ? 'true' : 'false');
+      }
+
       if (isSteppingOut) {
-        btn.classList.add('active');
-        document.getElementById('pStepText').textContent = d.stepActive;
+        const textEl = document.getElementById('pStepText');
+        if (textEl) textEl.textContent = d.stepActive || 'Stepping Out Active';
         showToast('Stepping out armed! Your phone will buzz at 5 patients away.');
       } else {
-        btn.classList.remove('active');
-        document.getElementById('pStepText').textContent = d.stepText;
+        const textEl = document.getElementById('pStepText');
+        if (textEl) textEl.textContent = d.stepText || 'I am Stepping Out';
         showToast('Stepping out disarmed. You are in the waiting hall.');
       }
     }
 
     function toggleLabGrace() {
-      const btn = document.getElementById('pLabBtn');
-      const d = I18N[currentLang];
+      const btn = document.getElementById('pLabToggleBtn');
+      const d = I18N[currentLang] || {};
 
       if (labHoldInterval) {
         clearInterval(labHoldInterval);
         labHoldInterval = null;
-        btn.classList.remove('active');
-        document.getElementById('pLabText').textContent = d.labText;
-        document.getElementById('pLabSub').textContent = d.labSub;
+        if (btn) {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-checked', 'false');
+        }
+        const badge = document.getElementById('pLabCountdownBadge');
+        if (badge) badge.style.display = 'none';
+        const textEl = document.getElementById('pLabText');
+        if (textEl) textEl.textContent = d.labText || 'Lab / X-Ray 30-min Priority Hold';
+        const subEl = document.getElementById('pLabSub');
+        if (subEl) subEl.textContent = d.labSub || 'Locks priority for up to 30 minutes during diagnostic tests without losing place';
         showToast('Lab Hold completed! Returned as Priority 1.');
       } else {
         labHoldSeconds = 30 * 60;
-        btn.classList.add('active');
-        document.getElementById('pLabText').textContent = 'I Have Returned from Lab';
+        if (btn) {
+          btn.classList.add('active');
+          btn.setAttribute('aria-checked', 'true');
+        }
+        const badge = document.getElementById('pLabCountdownBadge');
+        if (badge) badge.style.display = 'inline-flex';
+        const textEl = document.getElementById('pLabText');
+        if (textEl) textEl.textContent = 'I Have Returned from Lab';
         
         labHoldInterval = setInterval(() => {
           labHoldSeconds--;
           const m = Math.floor(labHoldSeconds / 60);
           const s = (labHoldSeconds % 60).toString().padStart(2, '0');
-          document.getElementById('pLabSub').textContent = `Priority Hold Active: ${m}:${s} remaining. Place preserved.`;
+          const cdText = document.getElementById('pLabCountdownText');
+          if (cdText) cdText.textContent = `Hold Active: ${m}:${s} remaining`;
+          const subEl = document.getElementById('pLabSub');
+          if (subEl) subEl.textContent = `Priority Hold Active: ${m}:${s} remaining. Place preserved.`;
           if (labHoldSeconds <= 0) {
             clearInterval(labHoldInterval);
             labHoldInterval = null;
@@ -7370,46 +7773,7 @@
       }
     }
 
-    // ================= SETTINGS & THEME CONTROLLER =================
-    let isAudioChimeEnabled = true;
-    let isVoiceAnnounceEnabled = true;
-
-    function openSettingsModal() {
-      const modal = document.getElementById('settingsModal');
-      if (!modal) return;
-      modal.style.display = 'flex';
-      
-      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-      updateThemeSegmentedControl(currentTheme);
-      
-      const chimeCheck = document.getElementById('toggleAudioChimeInput');
-      if (chimeCheck) chimeCheck.checked = isAudioChimeEnabled !== false;
-      
-      const voiceCheck = document.getElementById('toggleVoiceAnnounceInput');
-      if (voiceCheck) voiceCheck.checked = isVoiceAnnounceEnabled !== false;
-      
-      const langSel = document.getElementById('settingLangSelect');
-      if (langSel) langSel.value = currentLang;
-    }
-
-    function closeSettingsModal() {
-      const modal = document.getElementById('settingsModal');
-      if (modal) modal.style.display = 'none';
-    }
-
-    function handleSettingsBackdropClick(e) {
-      if (e.target === document.getElementById('settingsModal')) {
-        closeSettingsModal();
-      }
-    }
-
-    function setTheme(theme) {
-      document.documentElement.setAttribute('data-theme', theme);
-      try { localStorage.setItem('qtime_theme', theme); } catch (e) {}
-      updateThemeSegmentedControl(theme);
-      showToast(theme === 'light' ? (currentLang === 'hi' ? 'लाइट थीम सक्रिय' : 'Light Theme Activated') : (currentLang === 'hi' ? 'डार्क थीम सक्रिय' : 'Dark Theme Activated'), 'info');
-    }
-
+    // ================= SETTINGS & THEME COMPATIBILITY =================
     function updateThemeSegmentedControl(theme) {
       const btnDark = document.getElementById('btnThemeDark');
       const btnLight = document.getElementById('btnThemeLight');
@@ -7421,36 +7785,12 @@
       }
     }
 
-    function testAudioChime() {
-      playAudioChime();
-    }
-
-    function toggleAudioChime(enabled) {
-      isAudioChimeEnabled = enabled;
-      showToast(enabled ? 'Audio Chime Enabled' : 'Audio Chime Muted', 'info');
-    }
-
-    function testSpeechAnnouncement() {
-      triggerSpeechAnnouncement();
-    }
-
     function toggleVoiceAnnounce(enabled) {
-      isVoiceAnnounceEnabled = enabled;
-      showToast(enabled ? 'Voice Announcements Enabled' : 'Voice Announcements Muted', 'info');
-    }
-
-    function applySettingsLanguage(lang) {
-      if (lang !== currentLang) {
-        toggleLanguage();
-      }
+      toggleVoiceAnnouncement(enabled);
     }
 
     function resetSettingsDefaults() {
-      setTheme('dark');
-      toggleAudioChime(true);
-      toggleVoiceAnnounce(true);
-      if (currentLang !== 'en') toggleLanguage();
-      showToast('Settings reset to system defaults', 'info');
+      resetSettingsToDefault();
     }
 
     document.addEventListener('keydown', (e) => {

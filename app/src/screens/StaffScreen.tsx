@@ -29,6 +29,7 @@ import {
   myClinicId,
 } from '../queue';
 import {makeClaimPayload} from '../types';
+import {AlertTriangleIcon} from '../components/Icons';
 import type {Clinic, Doctor, QueueRow, TokenSource, Token} from '../types';
 
 interface StaffScreenProps {
@@ -318,14 +319,14 @@ export function StaffScreen({onSwitchMode, onLanguageChange}: StaffScreenProps) 
             </TouchableOpacity>
             {onSwitchMode && (
               <TouchableOpacity style={styles.switchPill} onPress={onSwitchMode} activeOpacity={0.8}>
-                <Text style={styles.switchPillText}>📺 {t('waitingHallKiosk')}</Text>
+                <Text style={styles.switchPillText}>{t('waitingHallKiosk')}</Text>
               </TouchableOpacity>
             )}
           </View>
         </View>
 
         <View style={[commonStyles.card, {marginTop: THEME.spacing.lg}]}>
-          <Text style={styles.modalTitle}>👨‍⚕️ {t('staffSignIn')}</Text>
+          <Text style={styles.modalTitle}>{t('staffSignIn')}</Text>
           <Text style={styles.modalSubtitle}>
             Sign in to call next patients, manage doctor consultation lanes, and issue tokens.
           </Text>
@@ -374,7 +375,7 @@ export function StaffScreen({onSwitchMode, onLanguageChange}: StaffScreenProps) 
             disabled={loading}
             activeOpacity={0.8}>
             <Text style={[commonStyles.secondaryButtonText, {color: THEME.colors.teal}]}>
-              ⚡ 1-Tap Quick Staff Demo Login
+              1-Tap Quick Staff Demo Login
             </Text>
           </TouchableOpacity>
         </View>
@@ -399,7 +400,7 @@ export function StaffScreen({onSwitchMode, onLanguageChange}: StaffScreenProps) 
           </TouchableOpacity>
           {onSwitchMode && (
             <TouchableOpacity style={styles.switchPill} onPress={onSwitchMode} activeOpacity={0.8}>
-              <Text style={styles.switchPillText}>📺 {t('waitingHallKiosk')}</Text>
+              <Text style={styles.switchPillText}>{t('waitingHallKiosk')}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -454,7 +455,7 @@ export function StaffScreen({onSwitchMode, onLanguageChange}: StaffScreenProps) 
           }}
           activeOpacity={0.8}>
           <Text style={styles.pauseToolText}>
-            {currentClinic?.is_paused ? `▶ ${t('resume')}` : `⏸ ${t('pause')}`}
+            {currentClinic?.is_paused ? t('resume') : t('pause')}
           </Text>
         </TouchableOpacity>
 
@@ -462,21 +463,21 @@ export function StaffScreen({onSwitchMode, onLanguageChange}: StaffScreenProps) 
           style={styles.secondaryToolButton}
           onPress={() => setShowNoticeModal(true)}
           activeOpacity={0.8}>
-          <Text style={styles.secondaryToolText}>📢 {t('sendNotice')}</Text>
+          <Text style={styles.secondaryToolText}>{t('sendNotice')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.secondaryToolButton}
           onPress={() => setShowRoomModal(true)}
           activeOpacity={0.8}>
-          <Text style={styles.secondaryToolText}>🚪 {t('changeRoom')}</Text>
+          <Text style={styles.secondaryToolText}>{t('changeRoom')}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Emergency Notice Banner if Paused */}
       {currentClinic?.is_paused && (
         <View style={styles.alertBanner}>
-          <Text style={styles.alertIcon}>⚠️</Text>
+          <AlertTriangleIcon size={18} color={THEME.colors.warning} />
           <View style={{flex: 1}}>
             <Text style={styles.alertTitle}>{t('queuePaused')}</Text>
             <Text style={styles.alertSubtitle}>
@@ -533,7 +534,7 @@ export function StaffScreen({onSwitchMode, onLanguageChange}: StaffScreenProps) 
               onPress={() => handleMarkServed(currentlyCalled)}
               disabled={loading}
               activeOpacity={0.8}>
-              <Text style={commonStyles.primaryButtonText}>✓ {t('serve')} (Complete)</Text>
+              <Text style={commonStyles.primaryButtonText}>{t('serve')} (Complete)</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -541,7 +542,7 @@ export function StaffScreen({onSwitchMode, onLanguageChange}: StaffScreenProps) 
               onPress={() => handleSkip(currentlyCalled)}
               disabled={loading}
               activeOpacity={0.8}>
-              <Text style={styles.skipButtonText}>✕ {t('skip')}</Text>
+              <Text style={styles.skipButtonText}>{t('skip')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -555,7 +556,7 @@ export function StaffScreen({onSwitchMode, onLanguageChange}: StaffScreenProps) 
               disabled={loading}
               activeOpacity={0.8}>
               <Text style={commonStyles.primaryButtonText}>
-                🔔 {t('call')} Next Patient (#{waitingList[0].number})
+                {t('call')} Next Patient (#{waitingList[0].number})
               </Text>
             </TouchableOpacity>
           )}
@@ -587,7 +588,7 @@ export function StaffScreen({onSwitchMode, onLanguageChange}: StaffScreenProps) 
                   )}
                 </View>
                 <Text style={styles.itemMeta}>
-                  {item.source} · {item.stepped_out ? '🚶 Stepped out' : 'Waiting in hall'}
+                  {item.source} · {item.stepped_out ? 'Stepped out' : 'Waiting in hall'}
                 </Text>
               </View>
             </View>
@@ -611,7 +612,7 @@ export function StaffScreen({onSwitchMode, onLanguageChange}: StaffScreenProps) 
 
             {issuedResult ? (
               <View style={styles.issuedResultContent}>
-                <Text style={styles.issuedSuccessTitle}>✅ Token #{issuedResult.token.number} Issued</Text>
+                <Text style={styles.issuedSuccessTitle}>Token #{issuedResult.token.number} Issued</Text>
                 <View style={styles.qrContainer}>
                   <QRCode
                     value={makeClaimPayload(issuedResult.token.id, issuedResult.claimCode)}

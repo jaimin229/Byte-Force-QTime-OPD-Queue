@@ -36,3 +36,5 @@ app/android/.gradle/
 *.jsbundle
 
 .vercel
+backend-credentials.json
+backend-credentials.txt

@@ -10,6 +10,7 @@ import {
 import {t, getLang, setLang, Lang} from '../i18n';
 import {fetchClinics, fetchDoctors, fetchBoard, subscribeClinic} from '../queue';
 import type {Clinic, Doctor, QueueRow} from '../types';
+import {AlertTriangleIcon} from '../components/Icons';
 
 interface KioskScreenProps {
   onExitKiosk?: () => void;
@@ -102,7 +103,7 @@ export function KioskScreen({onExitKiosk}: KioskScreenProps) {
       {/* Emergency Delay Ticker if Paused */}
       {clinic?.is_paused && (
         <View style={styles.emergencyTicker}>
-          <Text style={styles.tickerIcon}>⚠️</Text>
+          <AlertTriangleIcon size={20} color="#F59E0B" />
           <Text style={styles.tickerText}>
             {clinic.pause_reason || t('pausedReason')} — {t('queuePaused')}
           </Text>
@@ -188,7 +189,7 @@ export function KioskScreen({onExitKiosk}: KioskScreenProps) {
       {/* Bottom Information Ticker */}
       <View style={styles.bottomBar}>
         <Text style={styles.bottomNotice}>
-          💡 {lang === 'en' ? 'Scan QR at counter on your phone to track position & step out safely.' : 'अपने फोन पर क्यूआर स्कैन करें और सुरक्षित रूप से प्रतीक्षा करें।'}
+          {lang === 'en' ? 'Scan QR at counter on your phone to track position & step out safely.' : 'अपने फोन पर क्यूआर स्कैन करें और सुरक्षित रूप से प्रतीक्षा करें।'}
         </Text>
       </View>
     </View>

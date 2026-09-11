@@ -1,0 +1,9 @@
+app/
+backend/
+node_modules/
+backend-credentials.json
+backend-credentials.txt
+*.md
+*.pdf
+.git/
+.gradle/
