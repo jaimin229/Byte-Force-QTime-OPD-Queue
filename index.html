@@ -60,6 +60,20 @@
       
       --sidebar-width: 250px;
       --header-height: 56px;
+
+      /* Precision Clinical Motion Tokens */
+      --duration-instant: 120ms;
+      --duration-normal: 240ms;
+      --duration-deliberate: 400ms;
+      --duration-slow: 600ms;
+      --ease-clinical-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-clinical-inout: cubic-bezier(0.65, 0, 0.35, 1);
+      --ease-clinical-pulse: cubic-bezier(0.4, 0, 0.6, 1);
+      
+      /* Clinical Status Tokens */
+      --color-clinical-green: #10B981;
+      --color-clinical-amber: #F59E0B;
+      --color-clinical-red: #EF4444;
     }
 
     [data-theme="dark"] {
@@ -88,6 +102,11 @@
       --inverse-text: #05070D;
 
       --card-shadow: 0 1px 4px rgba(0,0,0,0.4);
+
+      /* Dark Mode Status Overrides */
+      --color-clinical-green: #34D399;
+      --color-clinical-amber: #FBBF24;
+      --color-clinical-red: #F87171;
     }
 
     /* Reset & Base */
@@ -682,13 +701,13 @@
       width: 100%;
       max-width: 580px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-      animation: modalSlideUp 0.15s ease;
+      animation: modalSlideUp var(--duration-normal) var(--ease-clinical-out);
       overflow: hidden;
     }
 
     @keyframes modalSlideUp {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(12px) scale(0.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
     .modal-header {
@@ -721,7 +740,7 @@
       background: var(--bg-subtle);
     }
 
-    /* Toast Notification */
+    /* Toast Notification with Clinical Slide-In */
     #toastContainer {
       position: fixed;
       bottom: 24px;
@@ -739,17 +758,346 @@
       border-radius: var(--radius);
       font-size: 13px;
       font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.28);
       border: 1px solid var(--border-dark);
       display: flex;
       align-items: center;
       gap: 8px;
-      animation: toastIn 0.2s ease;
+      animation: toastIn var(--duration-normal) var(--ease-clinical-out);
     }
 
     @keyframes toastIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(12px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Physiological 0.42Hz Clinical Pulse Ring */
+    .pulse-ring {
+      position: relative;
+    }
+    .pulse-ring::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: inherit;
+      border: 2px solid currentColor;
+      opacity: 0.4;
+      animation: physiologicalPulse 2.4s var(--ease-clinical-pulse) infinite;
+      pointer-events: none;
+    }
+    @keyframes physiologicalPulse {
+      0%, 100% { transform: scale(1); opacity: 0.2; }
+      50% { transform: scale(1.06); opacity: 0.65; }
+    }
+
+    /* Row Highlight on Patient Call */
+    @keyframes rowCallFlash {
+      0% { background-color: var(--accent-blue-subtle); }
+      50% { background-color: rgba(56, 189, 248, 0.25); }
+      100% { background-color: transparent; }
+    }
+    .row-call-highlight {
+      animation: rowCallFlash 1.6s var(--ease-clinical-out) forwards;
+    }
+
+    /* Doctor Desk: Circular Consultation Stopwatch & Pace Badges */
+    .doc-consult-timer-widget {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-full);
+    }
+    .doc-timer-svg-wrap {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .doc-timer-svg {
+      transform: rotate(-90deg);
+      width: 32px;
+      height: 32px;
+    }
+    .doc-timer-track {
+      stroke: var(--border);
+      stroke-width: 3;
+      fill: none;
+    }
+    .doc-timer-progress {
+      stroke: var(--accent-blue);
+      stroke-width: 3;
+      stroke-linecap: round;
+      fill: none;
+      transition: stroke-dashoffset 1s linear, stroke var(--duration-normal) var(--ease-clinical-out);
+    }
+    .doc-timer-text-val {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .pace-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+    }
+    .pace-green {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--color-clinical-green);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .pace-amber {
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--color-clinical-amber);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+    .pace-red {
+      background: rgba(239, 68, 68, 0.12);
+      color: var(--color-clinical-red);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      animation: physiologicalPulse 1.8s infinite;
+    }
+
+    /* Patient Portal: 5-Step Milestone Journey Tracker */
+    .milestone-tracker-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+    .milestone-tracker {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      position: relative;
+      margin: 18px 0 6px;
+    }
+    .milestone-track-bg {
+      position: absolute;
+      top: 14px;
+      left: 36px;
+      right: 36px;
+      height: 3px;
+      background: var(--border);
+      z-index: 1;
+    }
+    .milestone-track-fill {
+      position: absolute;
+      top: 14px;
+      left: 36px;
+      height: 3px;
+      background: var(--accent-blue);
+      z-index: 2;
+      transition: width var(--duration-deliberate) var(--ease-clinical-out);
+    }
+    .milestone-step {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      width: 72px;
+      text-align: center;
+    }
+    .milestone-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-full);
+      background: var(--bg-surface);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--text-muted);
+      transition: all var(--duration-normal) var(--ease-clinical-out);
+    }
+    .milestone-step.completed .milestone-dot {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: #FFFFFF;
+    }
+    .milestone-step.active .milestone-dot {
+      background: var(--bg-surface);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+      box-shadow: 0 0 0 4px var(--accent-blue-subtle);
+    }
+    .milestone-step.active .milestone-label {
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+    .milestone-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1.2;
+    }
+
+    /* Patient Portal: 15-Minute Live Step-Out Countdown Card */
+    .stepout-active-card {
+      display: none;
+      background: var(--bg-surface);
+      border: 2px solid var(--accent-blue);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      animation: modalSlideUp var(--duration-normal) var(--ease-clinical-out);
+    }
+    .stepout-gauge-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .stepout-countdown-display {
+      font-family: var(--font-mono);
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1;
+      color: var(--accent-blue);
+    }
+
+    /* Kiosk TV: Infinite Marquee Ticker & Critical Urgent Flash */
+    .kiosk-ticker-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      background: #090D15;
+      border-top: 2px solid #222;
+      padding: 14px 0;
+      white-space: nowrap;
+    }
+    .kiosk-ticker-track {
+      display: inline-block;
+      white-space: nowrap;
+      animation: kioskMarquee 38s linear infinite;
+      font-size: 20px;
+      font-weight: 600;
+      color: #E2E8F0;
+      letter-spacing: 0.5px;
+    }
+    @keyframes kioskMarquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .kiosk-urgent-banner {
+      display: none;
+      background: #DC2626;
+      color: #FFFFFF;
+      padding: 14px 24px;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-align: center;
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+      animation: urgentPulse 1.2s infinite;
+    }
+    @keyframes urgentPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(0.995); }
+    }
+
+    /* Auth: Simulated Handshake Verification Bar & Persona Preview */
+    .auth-verification-box {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--bg-subtle);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      animation: screenFadeIn var(--duration-normal) var(--ease-clinical-out);
+    }
+    .auth-verification-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .auth-progress-track {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .auth-progress-fill {
+      width: 0%;
+      height: 100%;
+      background: var(--accent-blue);
+      transition: width 0.28s var(--ease-clinical-out);
+    }
+    .auth-persona-meta-card {
+      margin-top: 14px;
+      padding: 12px;
+      background: var(--accent-blue-subtle);
+      border: 1px solid var(--accent-blue-border);
+      border-radius: var(--radius);
+      font-size: 12px;
+      color: var(--accent-blue-text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .auth-sso-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+    .user-avatar-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-full);
+      background: var(--accent-blue-subtle);
+      color: var(--accent-blue-text);
+      font-weight: 800;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--accent-blue-border);
+      flex-shrink: 0;
+    }
+
+    /* WCAG AA Reduced Motion Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .kiosk-ticker-track {
+        animation: none !important;
+        transform: none !important;
+      }
+      .pulse-ring::after {
+        animation: none !important;
+      }
     }
 
     /* Patient Hero Box */
@@ -1142,12 +1490,15 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="user-profile-badge">
-          <div>
-            <div style="font-size:12px; font-weight:700;" id="sidebarUserName">Priya Nair</div>
-            <div style="font-size:11px; color:var(--text-secondary);" id="sidebarUserRole">Reception Desk (Counter 1)</div>
+        <div class="user-profile-badge" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+            <div class="user-avatar-badge" id="sidebarAvatar">PN</div>
+            <div style="min-width:0; overflow:hidden;">
+              <div style="font-size:12px; font-weight:700; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;" id="sidebarUserName">Priya Nair</div>
+              <div style="font-size:11px; color:var(--text-secondary); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;" id="sidebarUserRole">Reception Desk (Counter 1)</div>
+            </div>
           </div>
-          <button class="btn btn-sm btn-text" onclick="switchView('login')" title="Sign out / Switch user">
+          <button class="btn btn-sm btn-text" onclick="handleLogout()" title="Sign out / Switch user" style="flex-shrink:0;">
             Sign out
           </button>
         </div>
@@ -1305,9 +1656,22 @@
 
           <!-- Active Patient In-Consultation Card -->
           <div class="card" style="border-left: 4px solid var(--accent-blue);">
-            <div class="card-title">
+            <div class="card-title" style="align-items:center;">
               <span id="lblDocCurrentConsult">Currently In Consultation</span>
-              <span class="chip chip-serving" id="lblDocConsultTimer">Elapsed: 04:12</span>
+              <div class="doc-consult-timer-widget">
+                <div class="doc-timer-svg-wrap">
+                  <svg class="doc-timer-svg" viewBox="0 0 32 32">
+                    <circle class="doc-timer-track" cx="16" cy="16" r="13" />
+                    <circle class="doc-timer-progress" id="docConsultProgressRing" cx="16" cy="16" r="13"
+                            stroke-dasharray="81.68" stroke-dashoffset="81.68" />
+                  </svg>
+                </div>
+                <div>
+                  <div style="font-size:10px; text-transform:uppercase; color:var(--text-muted); font-weight:700; letter-spacing:0.5px;">Consultation</div>
+                  <div class="doc-timer-text-val" id="lblDocConsultTimer">00:00</div>
+                </div>
+                <span class="pace-badge pace-green" id="lblDocConsultPace">Target (&lt; 7m)</span>
+              </div>
             </div>
             
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px;" id="doctorActivePatientArea">
@@ -1374,6 +1738,69 @@
           <div style="margin-bottom:20px;">
             <h2 style="font-size:22px; font-weight:800;">Patient Queue Portal</h2>
             <div style="font-size:13px; color:var(--text-secondary);">Track your position, find nearby hospitals, or select your specialist doctor</div>
+          </div>
+
+          <!-- 5-Step Clinical Queue Journey Tracker -->
+          <div class="milestone-tracker-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+              <div>
+                <span style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-main);">OPD Patient Care Journey</span>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">Live sequential progression from triage registration to consultation completion</div>
+              </div>
+              <span class="chip chip-serving pulse-ring" id="lblMilestoneStageBadge">STAGE 2: WAITING IN HALL</span>
+            </div>
+
+            <div class="milestone-tracker">
+              <div class="milestone-track-bg"></div>
+              <div class="milestone-track-fill" id="milestoneTrackFill" style="width: 25%;"></div>
+
+              <div class="milestone-step completed" id="stepMilestone1">
+                <div class="milestone-dot">&#10003;</div>
+                <div class="milestone-label">Registered</div>
+              </div>
+              <div class="milestone-step active" id="stepMilestone2">
+                <div class="milestone-dot">2</div>
+                <div class="milestone-label">Waiting</div>
+              </div>
+              <div class="milestone-step" id="stepMilestone3">
+                <div class="milestone-dot">3</div>
+                <div class="milestone-label">Next in Line</div>
+              </div>
+              <div class="milestone-step" id="stepMilestone4">
+                <div class="milestone-dot">4</div>
+                <div class="milestone-label">In Consult</div>
+              </div>
+              <div class="milestone-step" id="stepMilestone5">
+                <div class="milestone-dot">5</div>
+                <div class="milestone-label">Completed</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 15-Minute Live Step-Out Countdown Card -->
+          <div class="stepout-active-card" id="cardStepOutCountdown">
+            <div class="stepout-gauge-wrapper">
+              <div style="display:flex; align-items:center; gap:16px;">
+                <div class="doc-timer-svg-wrap" style="width:48px; height:48px;">
+                  <svg class="doc-timer-svg" style="width:48px; height:48px;" viewBox="0 0 32 32">
+                    <circle class="doc-timer-track" cx="16" cy="16" r="13" />
+                    <circle class="doc-timer-progress" id="stepOutProgressRing" cx="16" cy="16" r="13"
+                            stroke-dasharray="81.68" stroke-dashoffset="0" />
+                  </svg>
+                </div>
+                <div>
+                  <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px;">Queue Spot Held Active</div>
+                  <div class="stepout-countdown-display" id="lblStepOutTimer">15:00</div>
+                </div>
+              </div>
+              <div style="flex:1; min-width:200px;">
+                <div style="font-size:13px; font-weight:600; color:var(--text-main);">Temporary Stepping Out Window</div>
+                <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">Your position is held safely. Return to the OPD waiting hall before the timer reaches 00:00 to keep your spot.</div>
+              </div>
+              <button class="btn btn-primary" onclick="toggleSteppingOutPatient()">
+                Resume Active Spot Now
+              </button>
+            </div>
           </div>
 
           <!-- Live Token Status Hero -->
@@ -1842,21 +2269,31 @@
                 </div>
               </div>
 
-              <!-- 3 Clean Tabs: Doctor, Staff, Patient -->
+              <!-- 4 Clean Tabs: Doctor, Reception Staff, Hospital Admin, Patient -->
               <div class="role-tabs" role="tablist">
                 <button class="role-tab-btn active" id="tabLoginDoctor" onclick="switchLoginTab('doctor')">Doctor</button>
-                <button class="role-tab-btn" id="tabLoginStaff" onclick="switchLoginTab('staff')">Staff</button>
+                <button class="role-tab-btn" id="tabLoginStaff" onclick="switchLoginTab('staff')">Reception Staff</button>
+                <button class="role-tab-btn" id="tabLoginAdmin" onclick="switchLoginTab('admin')">Hospital Admin</button>
                 <button class="role-tab-btn" id="tabLoginPatient" onclick="switchLoginTab('patient')">Patient</button>
               </div>
 
+              <!-- Persona Meta Preview Card -->
+              <div class="auth-persona-meta-card" id="authPersonaMetaCard">
+                <div>
+                  <div style="font-weight:700;" id="authPersonaTitle">Dr. Rajesh Sharma</div>
+                  <div style="font-size:11px; opacity:0.85; margin-top:2px;" id="authPersonaSubtitle">NMC Reg: 64219/2012 · Department of Cardiology (Room 101)</div>
+                </div>
+                <span class="chip chip-serving" id="authPersonaChip">PHYSICIAN</span>
+              </div>
+
               <!-- SIGN-IN FORM VIEW -->
-              <div id="authLoginForm">
+              <div id="authLoginForm" style="margin-top:16px;">
                 <div class="form-group" id="loginIdGroup">
-                  <label class="form-label" id="lblLoginId">Doctor Google Email / ID</label>
-                  <input type="text" class="input-text" id="loginIdInput" value="dr.rajesh@qtime.org">
+                  <label class="form-label" id="lblLoginId">Doctor Google Institutional Email / ID</label>
+                  <input type="text" class="input-text" id="loginIdInput" value="dr.rajesh.sharma@district-health.gov.in">
                 </div>
                 <div class="form-group" id="loginPassGroup">
-                  <label class="form-label" id="lblLoginPass">Password</label>
+                  <label class="form-label" id="lblLoginPass">Institutional Password</label>
                   <input type="password" class="input-text" id="loginPassInput" value="hospital-secret">
                 </div>
                 <button class="btn btn-primary btn-lg" id="btnLoginSubmit" onclick="executeUserLogin()" style="width:100%; margin-top:8px;">
@@ -1864,8 +2301,19 @@
                 </button>
               </div>
 
+              <!-- Simulated Verification Progress Bar -->
+              <div class="auth-verification-box" id="authVerificationBox">
+                <div class="auth-verification-header">
+                  <span id="authVerificationText">Validating institutional directory...</span>
+                  <span style="font-family:var(--font-mono); font-weight:700;" id="authVerificationPercent">0%</span>
+                </div>
+                <div class="auth-progress-track">
+                  <div class="auth-progress-fill" id="authProgressFill"></div>
+                </div>
+              </div>
+
               <!-- REGISTRATION FORM VIEW -->
-              <div id="authRegisterForm" style="display:none;">
+              <div id="authRegisterForm" style="display:none; margin-top:16px;">
                 <div id="regDoctorNotice" style="margin-bottom:12px; padding:10px; background:var(--accent-blue-subtle); border:1px solid var(--accent-blue-border); border-radius:var(--radius); font-size:12px; color:var(--accent-blue-text);">
                   <strong>Doctor & Clinical Lead Registration:</strong> Use your Google institution email. As a Doctor, you will have privileges to delegate staff roles in Settings.
                 </div>
@@ -1874,8 +2322,8 @@
                   <input type="text" class="input-text" id="regFullName" placeholder="e.g. Dr. Rajesh Sharma">
                 </div>
                 <div class="form-group">
-                  <label class="form-label" id="lblRegUsernameOrEmail">Google Email</label>
-                  <input type="text" class="input-text" id="regUserIdentifier" placeholder="dr.sharma@gmail.com">
+                  <label class="form-label" id="lblRegUsernameOrEmail">Google Institutional Email</label>
+                  <input type="text" class="input-text" id="regUserIdentifier" placeholder="dr.sharma@district-health.gov.in">
                 </div>
                 <div class="form-group">
                   <label class="form-label">Password</label>
@@ -1883,6 +2331,18 @@
                 </div>
                 <button class="btn btn-primary btn-lg" onclick="executeUserRegistration()" style="width:100%; margin-top:8px;">
                   Create Account & Enter Dashboard
+                </button>
+              </div>
+
+              <!-- Institutional SSO Group -->
+              <div class="auth-sso-group">
+                <button class="btn btn-secondary" onclick="simulateInstitutionalSso('google')" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                  <span>Sign In with Institutional Google Workspace</span>
+                </button>
+                <button class="btn btn-secondary" onclick="simulateInstitutionalSso('abha')" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m14 9 3 3-3 3"/></svg>
+                  <span>Sign In via ABHA ID (ABDM)</span>
                 </button>
               </div>
 
@@ -1894,15 +2354,18 @@
                 <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">
                   Directly test any role dashboard with pre-configured operational state:
                 </div>
-                <div class="demo-btn-grid">
+                <div class="demo-btn-grid" style="grid-template-columns: repeat(4, 1fr);">
                   <button class="btn btn-sm btn-secondary" onclick="loginAsDemo('doctor')">
-                    Doctor Desk
+                    Doctor
                   </button>
                   <button class="btn btn-sm btn-secondary" onclick="loginAsDemo('staff')">
-                    Staff Desk
+                    Staff
+                  </button>
+                  <button class="btn btn-sm btn-secondary" onclick="loginAsDemo('admin')">
+                    Admin
                   </button>
                   <button class="btn btn-sm btn-secondary" onclick="loginAsDemo('patient')">
-                    Patient Portal
+                    Patient
                   </button>
                 </div>
               </div>
@@ -1954,6 +2417,11 @@
       </div>
     </div>
 
+    <!-- Priority 1 Urgent Emergency / Critical Alert Flash Beacon -->
+    <div class="kiosk-urgent-banner" id="kioskUrgentBanner">
+      CRITICAL ALERT: EMERGENCY (CODE BLUE) ACTIVE &bull; ALL CONSULTATIONS TEMPORARILY PAUSED
+    </div>
+
     <!-- Main TV Body -->
     <div style="display:grid; grid-template-columns: 2fr 1fr; gap:32px; margin:auto 0;">
       <div class="kiosk-now-serving-box">
@@ -1985,10 +2453,11 @@
       </div>
     </div>
 
-    <!-- Bottom Status Ticker -->
-    <div style="border-top:2px solid #222; padding-top:16px; display:flex; justify-content:space-between; font-size:20px; font-weight:600; color:#D4D4D8;">
-      <span id="kioskTickerText">Please keep your token ready · कृपया अपना टोकन तैयार रखें</span>
-      <span style="color:#71717A;">QTime Operations System</span>
+    <!-- Bottom Hardware-Accelerated Marquee Ticker -->
+    <div class="kiosk-ticker-container">
+      <div class="kiosk-ticker-track" id="kioskTickerTrack">
+        DISTRICT HQ HOSPITAL CENTRAL OPD &bull; OPD HOURS: 08:00 - 16:00 &bull; EMERGENCY TRAUMA CARE: 24x7 BLOCK B &bull; PLEASE PRESENT YOUR PHYSICAL TOKEN OR DIGITAL QR PASS UPON ENTRY &bull; WHEELCHAIR & GERIATRIC ASSISTANCE AVAILABLE AT COUNTER 1 &bull; PHARMACY DISPENSARY AT GROUND FLOOR COUNTER 4 &bull; DISTRICT HQ HOSPITAL CENTRAL OPD &bull; OPD HOURS: 08:00 - 16:00 &bull; EMERGENCY TRAUMA CARE: 24x7 BLOCK B &bull; PLEASE PRESENT YOUR PHYSICAL TOKEN OR DIGITAL QR PASS UPON ENTRY &bull; WHEELCHAIR & GERIATRIC ASSISTANCE AVAILABLE AT COUNTER 1 &bull; PHARMACY DISPENSARY AT GROUND FLOOR COUNTER 4
+      </div>
     </div>
   </div>
 
@@ -2199,10 +2668,60 @@
         .replace(/'/g, '&#039;');
     }
 
+    // Enterprise Clinical Persona Repository
+    const CLINICAL_PERSONAS = {
+      doctor: {
+        role: 'doctor',
+        name: 'Dr. Rajesh Sharma',
+        designation: 'Lead Physician (Room 101)',
+        email: 'dr.rajesh.sharma@district-health.gov.in',
+        regId: 'NMC Reg: 64219/2012',
+        dept: 'Cardiology',
+        room: 'Room 101',
+        initials: 'RS',
+        landingView: 'doctor'
+      },
+      staff: {
+        role: 'staff',
+        name: 'Priya Nair',
+        designation: 'Senior Registration Officer (Counter 1)',
+        email: 'priya.nair@district-health.gov.in',
+        regId: 'Staff ID: STF-OPD-104',
+        dept: 'Central Reception',
+        room: 'Counter 1',
+        initials: 'PN',
+        landingView: 'staff'
+      },
+      admin: {
+        role: 'admin',
+        name: 'Dr. K. S. Anand',
+        designation: 'Chief Medical Superintendent',
+        email: 'admin.supt@district-health.gov.in',
+        regId: 'Admin ID: ADM-DIR-001',
+        dept: 'Hospital Administration',
+        room: 'Secretariat',
+        initials: 'KA',
+        landingView: 'settings'
+      },
+      patient: {
+        role: 'patient',
+        name: 'Vikram Mehta',
+        designation: 'Patient (Token A-07)',
+        email: 'vikram.mehta@abdm',
+        regId: 'ABHA ID: 91-4452-8921-0429',
+        dept: 'Cardiology OPD',
+        room: 'Room 101',
+        initials: 'VM',
+        landingView: 'patient'
+      }
+    };
+
+    const AUTH_STORAGE_KEY = 'qtime_auth_session';
+
     // Enterprise RBAC & Security Session Model
     let authSession = {
       user: 'Priya Nair',
-      role: 'staff', // 'staff', 'doctor', 'patient', 'admin'
+      role: 'staff',
       facility: 'District HQ Hospital',
       counter: 'Counter 1'
     };
@@ -2214,7 +2733,68 @@
       patient: ['patient', 'login']
     };
 
-    // Doctor Desk Live Consultation Stopwatch
+    function saveSessionToStorage(persona) {
+      try {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
+          role: persona.role,
+          user: persona.name,
+          designation: persona.designation,
+          email: persona.email,
+          regId: persona.regId,
+          initials: persona.initials,
+          room: persona.room,
+          timestamp: Date.now()
+        }));
+      } catch (e) {
+        console.warn('Session storage fallback:', e);
+      }
+    }
+
+    function loadSessionFromStorage() {
+      try {
+        const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (e) {
+        console.warn('Failed to parse session:', e);
+      }
+      return null;
+    }
+
+    function clearSessionStorage() {
+      try {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+      } catch (e) {
+        console.warn('Session clear fallback:', e);
+      }
+    }
+
+    function updateSidebarProfileBadge(persona) {
+      const p = persona || CLINICAL_PERSONAS[authSession.role] || CLINICAL_PERSONAS.staff;
+      const nameEl = document.getElementById('sidebarUserName');
+      const roleEl = document.getElementById('sidebarUserRole');
+      const avatarEl = document.getElementById('sidebarAvatar');
+      if (nameEl) nameEl.textContent = p.name || p.user;
+      if (roleEl) roleEl.textContent = p.designation || (p.role === 'doctor' ? 'Lead Physician (Room 101)' : 'Reception Desk');
+      if (avatarEl) avatarEl.textContent = p.initials || 'PN';
+
+      const roleSel = document.getElementById('demoRoleSelector');
+      if (roleSel && p.role && roleSel.value !== p.role) {
+        roleSel.value = p.role;
+      }
+    }
+
+    function initAuthAndSession() {
+      const saved = loadSessionFromStorage();
+      if (saved && saved.role && CLINICAL_PERSONAS[saved.role]) {
+        authSession.role = saved.role;
+        authSession.user = saved.user;
+        updateSidebarProfileBadge(saved);
+      } else {
+        updateSidebarProfileBadge(CLINICAL_PERSONAS.staff);
+      }
+    }
+
+    // Doctor Desk Live Consultation Stopwatch & Circular Progress
     let consultationSeconds = 0;
     let consultationTimerInterval = null;
 
@@ -2223,7 +2803,9 @@
       const activePatient = sampleQueue.find(p => p.status === 'serving');
       if (!activePatient) {
         const el = document.getElementById('lblDocConsultTimer');
-        if (el) el.textContent = 'Elapsed: 00:00';
+        if (el) el.textContent = '00:00';
+        const ring = document.getElementById('docConsultProgressRing');
+        if (ring) ring.style.strokeDashoffset = '81.68';
         return;
       }
       consultationSeconds = 0;
@@ -2243,10 +2825,142 @@
 
     function updateConsultationTimerDisplay() {
       const el = document.getElementById('lblDocConsultTimer');
+      const ring = document.getElementById('docConsultProgressRing');
+      const pace = document.getElementById('lblDocConsultPace');
       if (!el) return;
+
       const mins = String(Math.floor(consultationSeconds / 60)).padStart(2, '0');
       const secs = String(consultationSeconds % 60).padStart(2, '0');
-      el.textContent = 'Elapsed: ' + mins + ':' + secs;
+      el.textContent = mins + ':' + secs;
+
+      const totalTargetSecs = 720; // 12 mins standard benchmark
+      const circumference = 81.68;
+      const progressRatio = Math.min(consultationSeconds / totalTargetSecs, 1.0);
+      const dashOffset = circumference * (1 - progressRatio);
+
+      if (ring) {
+        ring.style.strokeDashoffset = dashOffset;
+        if (consultationSeconds < 420) {
+          ring.style.stroke = 'var(--color-clinical-green)';
+        } else if (consultationSeconds <= 720) {
+          ring.style.stroke = 'var(--color-clinical-amber)';
+        } else {
+          ring.style.stroke = 'var(--color-clinical-red)';
+        }
+      }
+
+      if (pace) {
+        if (consultationSeconds < 420) {
+          pace.className = 'pace-badge pace-green';
+          pace.textContent = 'Target (< 7m)';
+        } else if (consultationSeconds <= 720) {
+          pace.className = 'pace-badge pace-amber';
+          pace.textContent = 'Average (7-12m)';
+        } else {
+          pace.className = 'pace-badge pace-red';
+          pace.textContent = 'Extended (> 12m)';
+        }
+      }
+    }
+
+    // Patient Portal: 15-Minute Live Step-Out Countdown Timer
+    let stepOutSeconds = 900;
+    let stepOutTimerInterval = null;
+
+    function startStepOutCountdown() {
+      if (stepOutTimerInterval) clearInterval(stepOutTimerInterval);
+      stepOutSeconds = 900;
+      updateStepOutDisplay();
+      const card = document.getElementById('cardStepOutCountdown');
+      if (card) card.style.display = 'block';
+
+      stepOutTimerInterval = setInterval(() => {
+        if (stepOutSeconds > 0) {
+          stepOutSeconds--;
+          updateStepOutDisplay();
+        } else {
+          stopStepOutCountdown();
+          showToast('Step-out hold period elapsed (15m). Token returned to general waiting pool.');
+          toggleSteppingOutPatient();
+        }
+      }, 1000);
+    }
+
+    function stopStepOutCountdown() {
+      if (stepOutTimerInterval) {
+        clearInterval(stepOutTimerInterval);
+        stepOutTimerInterval = null;
+      }
+      const card = document.getElementById('cardStepOutCountdown');
+      if (card) card.style.display = 'none';
+    }
+
+    function updateStepOutDisplay() {
+      const el = document.getElementById('lblStepOutTimer');
+      const ring = document.getElementById('stepOutProgressRing');
+      if (!el) return;
+
+      const m = String(Math.floor(stepOutSeconds / 60)).padStart(2, '0');
+      const s = String(stepOutSeconds % 60).padStart(2, '0');
+      el.textContent = m + ':' + s;
+
+      const totalSec = 900;
+      const circumference = 81.68;
+      const ratio = stepOutSeconds / totalSec;
+      const offset = circumference * (1 - ratio);
+
+      if (ring) {
+        ring.style.strokeDashoffset = offset;
+        if (stepOutSeconds > 300) {
+          ring.style.stroke = 'var(--accent-blue)';
+          el.style.color = 'var(--accent-blue)';
+        } else if (stepOutSeconds > 120) {
+          ring.style.stroke = 'var(--color-clinical-amber)';
+          el.style.color = 'var(--color-clinical-amber)';
+        } else {
+          ring.style.stroke = 'var(--color-clinical-red)';
+          el.style.color = 'var(--color-clinical-red)';
+        }
+      }
+    }
+
+    // Patient Portal: Journey Tracker Progress
+    function updatePatientJourneyStage(stageNum) {
+      const fill = document.getElementById('milestoneTrackFill');
+      const badge = document.getElementById('lblMilestoneStageBadge');
+      const percentages = ['0%', '25%', '50%', '75%', '100%'];
+      const stageTitles = [
+        'STAGE 1: REGISTRATION COMPLETED',
+        'STAGE 2: WAITING IN HALL',
+        'STAGE 3: NEXT IN LINE (ROOM ENTRY)',
+        'STAGE 4: IN ACTIVE CONSULTATION',
+        'STAGE 5: CONSULTATION COMPLETED'
+      ];
+
+      if (fill && percentages[stageNum - 1]) {
+        fill.style.width = percentages[stageNum - 1];
+      }
+      if (badge && stageTitles[stageNum - 1]) {
+        badge.textContent = stageTitles[stageNum - 1];
+      }
+
+      for (let i = 1; i <= 5; i++) {
+        const stepEl = document.getElementById('stepMilestone' + i);
+        if (!stepEl) continue;
+        stepEl.classList.remove('active', 'completed');
+        if (i < stageNum) {
+          stepEl.classList.add('completed');
+          const dot = stepEl.querySelector('.milestone-dot');
+          if (dot) dot.innerHTML = '&#10003;';
+        } else if (i === stageNum) {
+          stepEl.classList.add('active');
+          const dot = stepEl.querySelector('.milestone-dot');
+          if (dot) dot.textContent = String(i);
+        } else {
+          const dot = stepEl.querySelector('.milestone-dot');
+          if (dot) dot.textContent = String(i);
+        }
+      }
     }
 
     // Professional Acoustic Voice Call Announcement
@@ -2264,6 +2978,32 @@
         console.warn('Speech synthesis fallback:', err);
       }
     }
+
+    // Staged Clinical Audio-Visual Orchestration Engine
+    const ClinicalAudioVisualEngine = {
+      orchestrateTokenCall(tokenNum, roomName) {
+        // Step 1: Harmonic acoustic chime at T=0
+        playAudioChime();
+
+        // Step 2: Row highlight flash on table row
+        try {
+          const rows = document.querySelectorAll('#queueTableBody tr, #doctorWaitingTableBody tr');
+          rows.forEach(r => {
+            if (r.textContent.includes('#' + tokenNum) || r.textContent.includes(String(tokenNum))) {
+              r.classList.add('row-call-highlight');
+              setTimeout(() => r.classList.remove('row-call-highlight'), 1800);
+            }
+          });
+        } catch (domErr) {
+          console.warn('Row highlight fallback:', domErr);
+        }
+
+        // Step 3: Staged speech announcement at T=480ms to avoid audio collision
+        setTimeout(() => {
+          playVoiceCallAnnouncement(tokenNum, roomName);
+        }, 480);
+      }
+    };
 
     let liveClinics = [];
     let liveDoctors = [];
@@ -2640,8 +3380,8 @@
       sampleQueue.forEach(item => { if (item.status === 'serving') item.status = 'issued'; });
       p.status = 'serving';
       selectedPatientId = id;
-      playAudioChime();
-      playVoiceCallAnnouncement(p.number, p.room || 'Room 101');
+      ClinicalAudioVisualEngine.orchestrateTokenCall(p.number, p.room || 'Room 101');
+      updatePatientJourneyStage(4);
       startConsultationTimer();
       renderQueueTable();
       renderDoctorQueue();
@@ -2708,6 +3448,7 @@
       if (current) {
         current.status = 'completed';
         stopConsultationTimer();
+        updatePatientJourneyStage(5);
         showToast('Consultation completed for #' + current.number + ' (' + current.name + ')');
         if (supa && typeof current.id === 'string' && current.id.length > 10) {
           supa.from('tokens').update({ status: 'served' }).eq('id', current.id).catch(console.warn);
@@ -2717,8 +3458,8 @@
       if (nextP) {
         nextP.status = 'serving';
         selectedPatientId = nextP.id;
-        playAudioChime();
-        playVoiceCallAnnouncement(nextP.number, nextP.room || 'Room 101');
+        ClinicalAudioVisualEngine.orchestrateTokenCall(nextP.number, nextP.room || 'Room 101');
+        updatePatientJourneyStage(4);
         startConsultationTimer();
         showToast('Called next patient: #' + nextP.number + ' (' + nextP.name + ')');
         if (supa && typeof nextP.id === 'string' && nextP.id.length > 10) {
@@ -2951,17 +3692,24 @@
       isSteppingOut = !isSteppingOut;
       const btn = document.getElementById('btnPatientStepOut');
       if (isSteppingOut) {
-        btn.textContent = 'Resume active spot';
-        btn.classList.add('btn-primary');
+        if (btn) {
+          btn.textContent = 'Resume active spot';
+          btn.classList.add('btn-primary');
+        }
         document.getElementById('lblPatientTokenStatus').textContent = 'STEPPED OUT (15M HOLD)';
-        document.getElementById('lblPatientTokenStatus').className = 'chip chip-hold';
-        showToast('Your queue place is held for 15 minutes while stepping out.');
+        document.getElementById('lblPatientTokenStatus').className = 'chip chip-hold pulse-ring';
+        startStepOutCountdown();
+        updatePatientJourneyStage(2);
+        showToast('Queue position reserved for 15 minutes while stepping out.');
       } else {
-        btn.textContent = 'Step out hold (15 min)';
-        btn.classList.remove('btn-primary');
+        if (btn) {
+          btn.textContent = 'Step out hold (15 min)';
+          btn.classList.remove('btn-primary');
+        }
         document.getElementById('lblPatientTokenStatus').textContent = 'ACTIVE IN QUEUE';
         document.getElementById('lblPatientTokenStatus').className = 'chip chip-serving';
-        showToast('Welcome back. Your active place has been restored.');
+        stopStepOutCountdown();
+        showToast('Welcome back. Your active place in line has been restored.');
       }
     }
 
@@ -3116,6 +3864,12 @@
       document.getElementById('emergencyReasonText').textContent = reason + ' — Routine consults temporarily paused';
       document.getElementById('emergencyBanner').style.display = 'block';
 
+      const kUrgent = document.getElementById('kioskUrgentBanner');
+      if (kUrgent) {
+        kUrgent.style.display = 'block';
+        kUrgent.textContent = 'CRITICAL ALERT: ' + reason.toUpperCase() + ' \u2022 ALL CONSULTATIONS TEMPORARILY PAUSED';
+      }
+
       emergencyHoldSeconds = 0;
       if (emergencyTimerInterval) clearInterval(emergencyTimerInterval);
       emergencyTimerInterval = setInterval(() => {
@@ -3140,6 +3894,9 @@
     function confirmResumeQueue() {
       isEmergencyHoldActive = false;
       document.getElementById('emergencyBanner').style.display = 'none';
+      const kUrgent = document.getElementById('kioskUrgentBanner');
+      if (kUrgent) kUrgent.style.display = 'none';
+
       if (emergencyTimerInterval) clearInterval(emergencyTimerInterval);
       showToast('Emergency hold released. Routine consultation queue resumed.');
 
@@ -3217,68 +3974,130 @@
       const submitBtn = document.getElementById('btnLoginSubmit');
       const regDocNotice = document.getElementById('regDoctorNotice');
       const regIdLbl = document.getElementById('lblRegUsernameOrEmail');
+      const metaTitle = document.getElementById('authPersonaTitle');
+      const metaSubtitle = document.getElementById('authPersonaSubtitle');
+      const metaChip = document.getElementById('authPersonaChip');
+
+      const persona = CLINICAL_PERSONAS[role] || CLINICAL_PERSONAS.doctor;
+
+      if (metaTitle) metaTitle.textContent = persona.name;
+      if (metaSubtitle) metaSubtitle.textContent = persona.regId + ' · ' + persona.dept + ' (' + persona.room + ')';
+      if (metaChip) {
+        metaChip.textContent = persona.role.toUpperCase();
+        metaChip.className = persona.role === 'admin' ? 'chip chip-priority' : 'chip chip-serving';
+      }
 
       if (role === 'doctor') {
-        idLbl.textContent = 'Doctor Google Email / ID';
-        idInp.value = 'dr.rajesh@qtime.org';
-        submitBtn.textContent = 'Sign In as Doctor';
+        if (idLbl) idLbl.textContent = 'Doctor Google Institutional Email / ID';
+        if (idInp) idInp.value = persona.email;
+        if (submitBtn) submitBtn.textContent = 'Sign In as Doctor';
         if (regDocNotice) regDocNotice.style.display = 'block';
-        if (regIdLbl) regIdLbl.textContent = 'Google Email (Hospital ID)';
+        if (regIdLbl) regIdLbl.textContent = 'Google Institutional Email (NMC Registered)';
       } else if (role === 'staff') {
-        idLbl.textContent = 'Staff ID or Email';
-        idInp.value = 'staff.opd@qtime.org';
-        submitBtn.textContent = 'Sign In as Staff';
+        if (idLbl) idLbl.textContent = 'Staff ID or Institutional Email';
+        if (idInp) idInp.value = persona.email;
+        if (submitBtn) submitBtn.textContent = 'Sign In as Reception Staff';
         if (regDocNotice) regDocNotice.style.display = 'none';
-        if (regIdLbl) regIdLbl.textContent = 'Staff ID / Email';
+        if (regIdLbl) regIdLbl.textContent = 'Staff Institutional Email / ID';
+      } else if (role === 'admin') {
+        if (idLbl) idLbl.textContent = 'Administrator Credential / ID';
+        if (idInp) idInp.value = persona.email;
+        if (submitBtn) submitBtn.textContent = 'Sign In as Hospital Admin';
+        if (regDocNotice) regDocNotice.style.display = 'none';
+        if (regIdLbl) regIdLbl.textContent = 'Admin Executive Email';
       } else {
-        idLbl.textContent = 'Patient Username';
-        idInp.value = 'vikram98';
-        submitBtn.textContent = 'Enter Patient Portal';
+        if (idLbl) idLbl.textContent = 'ABHA ID or Mobile Number';
+        if (idInp) idInp.value = persona.email;
+        if (submitBtn) submitBtn.textContent = 'Enter Patient Portal';
         if (regDocNotice) regDocNotice.style.display = 'none';
-        if (regIdLbl) regIdLbl.textContent = 'Patient Username';
+        if (regIdLbl) regIdLbl.textContent = 'Patient ABHA ID / Mobile';
       }
     }
 
+    function executeSimulatedAuth(personaKey, onComplete) {
+      const persona = CLINICAL_PERSONAS[personaKey] || CLINICAL_PERSONAS.doctor;
+      const box = document.getElementById('authVerificationBox');
+      const fill = document.getElementById('authProgressFill');
+      const text = document.getElementById('authVerificationText');
+      const percent = document.getElementById('authVerificationPercent');
+
+      if (box) box.style.display = 'block';
+      if (fill) fill.style.width = '0%';
+      if (text) text.textContent = 'Validating institutional directory...';
+      if (percent) percent.textContent = '0%';
+
+      const stages = [
+        { ms: 220, pct: '38%', msg: 'Verifying NMC / ABHA registry credentials...' },
+        { ms: 550, pct: '76%', msg: 'Establishing HIPAA/ABDM clinical session token...' },
+        { ms: 820, pct: '100%', msg: 'Session established. Launching dashboard...' }
+      ];
+
+      stages.forEach(s => {
+        setTimeout(() => {
+          if (fill) fill.style.width = s.pct;
+          if (text) text.textContent = s.msg;
+          if (percent) percent.textContent = s.pct;
+        }, s.ms);
+      });
+
+      setTimeout(() => {
+        if (box) box.style.display = 'none';
+        authSession.role = persona.role;
+        authSession.user = persona.name;
+        saveSessionToStorage(persona);
+        updateSidebarProfileBadge(persona);
+        if (onComplete) onComplete(persona);
+      }, 920);
+    }
+
     function executeUserLogin() {
-      if (currentRoleTab === 'doctor') {
-        authSession.role = 'doctor';
-        authSession.user = 'Dr. Rajesh Sharma';
-        document.getElementById('sidebarUserName').textContent = 'Dr. Rajesh Sharma';
-        document.getElementById('sidebarUserRole').textContent = 'Lead Physician (Room 101)';
-        const roleSel = document.getElementById('demoRoleSelector');
-        if (roleSel) roleSel.value = 'doctor';
-        switchView('doctor');
-        showToast('Welcome Dr. Rajesh Sharma. Switched to Doctor Desk.');
-      } else if (currentRoleTab === 'staff') {
-        authSession.role = 'staff';
-        authSession.user = 'Priya Nair';
-        document.getElementById('sidebarUserName').textContent = 'Priya Nair';
-        document.getElementById('sidebarUserRole').textContent = 'Reception Desk (Counter 1)';
-        const roleSel = document.getElementById('demoRoleSelector');
-        if (roleSel) roleSel.value = 'staff';
-        switchView('staff');
-        showToast('Welcome Priya Nair. Switched to Reception Desk.');
-      } else {
-        authSession.role = 'patient';
-        authSession.user = 'Vikram Mehta';
-        document.getElementById('sidebarUserName').textContent = 'Vikram Mehta';
-        document.getElementById('sidebarUserRole').textContent = 'Patient (Token A-07)';
-        const roleSel = document.getElementById('demoRoleSelector');
-        if (roleSel) roleSel.value = 'patient';
-        switchView('patient');
-        showToast('Welcome Vikram Mehta. Switched to Patient Portal.');
-      }
+      const p = CLINICAL_PERSONAS[currentRoleTab] || CLINICAL_PERSONAS.doctor;
+      const btn = document.getElementById('btnLoginSubmit');
+      if (btn) btn.disabled = true;
+
+      executeSimulatedAuth(currentRoleTab, (persona) => {
+        if (btn) btn.disabled = false;
+        switchView(persona.landingView);
+        showToast('Authenticated as ' + persona.name + ' (' + persona.designation + ')');
+      });
     }
 
     function executeUserRegistration() {
       const name = document.getElementById('regFullName').value.trim() || 'New User';
       showToast('Registration successful for ' + name + '!');
-      executeUserLogin();
+      executeSimulatedAuth(currentRoleTab, (persona) => {
+        switchView(persona.landingView);
+        showToast('Welcome ' + name + '. Session initialized.');
+      });
     }
 
     function loginAsDemo(role) {
       switchLoginTab(role);
       executeUserLogin();
+    }
+
+    function simulateInstitutionalSso(provider) {
+      const role = currentRoleTab || 'doctor';
+      const p = CLINICAL_PERSONAS[role] || CLINICAL_PERSONAS.doctor;
+      showToast(provider === 'abha' ? 'Connecting to Ayushman Bharat Digital Mission (ABDM)...' : 'Authenticating via Google Workspace for District HQ Health...');
+      executeSimulatedAuth(role, (persona) => {
+        switchView(persona.landingView);
+        showToast('Single Sign-On complete. Session active for ' + persona.name);
+      });
+    }
+
+    function handleLogout() {
+      clearSessionStorage();
+      authSession.role = 'guest';
+      authSession.user = 'Signed Out';
+      updateSidebarProfileBadge({
+        name: 'Not Signed In',
+        designation: 'Session Terminated',
+        initials: '--',
+        role: 'guest'
+      });
+      switchView('login');
+      showToast('Session terminated successfully. Switched to login portal.');
     }
 
     // 11. STAFF ROLE DELEGATION (RBAC IN SETTINGS)
@@ -3406,6 +4225,7 @@
     // 15. INITIAL BOOTSTRAP
     window.addEventListener('DOMContentLoaded', () => {
       setAppTheme(currentTheme);
+      initAuthAndSession();
       updateClock();
       renderQueueTable();
       renderDoctorQueue();
