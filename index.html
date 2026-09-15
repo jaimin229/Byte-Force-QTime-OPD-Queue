@@ -866,7 +866,7 @@
     }
 
     .saas-features li::before {
-      content: "✓";
+      content: "•";
       color: var(--accent-blue);
       font-weight: bold;
     }
@@ -1015,6 +1015,62 @@
       margin: 16px 0;
     }
 
+    /* Clinical Evaluation & Simulation Bar */
+    .simulation-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 24px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      z-index: 10;
+    }
+    .simulation-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .simulation-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      background: var(--accent-blue-subtle);
+      color: var(--accent-blue-text);
+      border: 1px solid var(--accent-blue-border);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .simulation-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .simulation-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .simulation-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
     @media (max-width: 960px) {
       .sidebar { display: none; }
       .mobile-nav { display: flex; }
@@ -1050,7 +1106,7 @@
         </div>
         <div class="brand-subtitle">OPD Queue Management</div>
         <div class="hospital-facility-badge" id="lblFacilityBadge">
-          <span>🏥</span>
+          <span style="font-size:10px; font-weight:700; color:var(--accent-blue); padding:1px 4px; border:1px solid var(--accent-blue-border); border-radius:3px;">FACILITY</span>
           <span>District HQ Hospital</span>
         </div>
       </div>
@@ -1110,7 +1166,7 @@
         <div class="header-right">
           <!-- Quick Theme Toggle (Light / Dark) -->
           <button class="btn btn-sm btn-secondary" onclick="toggleTheme()" id="btnQuickTheme" title="Toggle Light/Dark Theme">
-            <span id="themeToggleIcon">🌙</span>
+            <span id="themeToggleIcon" style="font-size:11px; font-weight:700;">[DARK]</span>
             <span id="themeToggleText">Dark</span>
           </button>
           <!-- Quick Lang Toggle -->
@@ -1121,6 +1177,31 @@
           <div class="header-time" id="headerLiveClock">15:30:00 IST</div>
         </div>
       </header>
+
+      <!-- Interactive Clinical Simulation Bar (Evaluator & Demo Engine) -->
+      <div class="simulation-bar" id="simulationBar">
+        <div class="simulation-bar-left">
+          <span class="simulation-badge">DEMO CONTROL</span>
+          <span class="simulation-label">Evaluator Simulation:</span>
+        </div>
+        <div class="simulation-bar-actions">
+          <button class="btn btn-sm btn-primary" onclick="runAutomatedOpdSimulation()" id="btnSimAuto" title="Step through complete OPD cycle">Simulate Auto Flow</button>
+          <button class="btn btn-sm btn-destructive" onclick="simulateIcuCodeBlue()" id="btnSimEmergency" title="Simulate critical ICU emergency hold">Trigger Code Blue</button>
+          <button class="btn btn-sm btn-secondary" onclick="simulatePatientStepOut()" id="btnSimStepOut" title="Hold patient spot for 15 minutes">Test Step-Out Hold</button>
+          <button class="btn btn-sm btn-secondary" onclick="simulateLabPriorityReturn()" id="btnSimLab" title="Return patient from diagnostic lab with priority">Simulate Lab Return</button>
+          <button class="btn btn-sm btn-secondary" onclick="enterKioskMode()" id="btnSimKiosk" title="Open full screen waiting hall TV display">Waiting TV Display</button>
+          <button class="btn btn-sm btn-outline" onclick="confirmResetDemoData()" id="btnSimReset" title="Reset queue to baseline data">Reset Baseline</button>
+        </div>
+        <div class="simulation-bar-right">
+          <span class="simulation-label">Active Role:</span>
+          <select class="select-input" id="demoRoleSelector" onchange="handleRoleSwitch(this.value)" style="width: auto; padding: 4px 8px; font-size: 12px; height: 30px;">
+            <option value="staff" selected>Staff (Reception Desk)</option>
+            <option value="doctor">Doctor (Room 101)</option>
+            <option value="patient">Patient Portal</option>
+            <option value="admin">Administrator (Settings)</option>
+          </select>
+        </div>
+      </div>
 
       <!-- Main Content Screens -->
       <main class="content-area">
@@ -1337,7 +1418,7 @@
                 <span>Nearby Hospitals & Health Centers</span>
                 <div class="card-subtitle">Choose a facility to visit or view live OPD queue density</div>
               </div>
-              <button class="btn btn-sm btn-outline" onclick="showToast('Location updated: GPS radius 5km')">📍 Refresh GPS</button>
+              <button class="btn btn-sm btn-outline" onclick="showToast('Location updated: GPS radius 5km')">Refresh GPS</button>
             </div>
             
             <div class="selector-grid" id="nearbyHospitalsGrid">
@@ -1499,10 +1580,10 @@
             </div>
             <div style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
               <button class="btn btn-secondary" id="btnThemeLight" onclick="setAppTheme('light')">
-                ☀️ Light Mode (Clinical Pure White)
+                Light Mode (Clinical Pure White)
               </button>
               <button class="btn btn-secondary" id="btnThemeDark" onclick="setAppTheme('dark')">
-                🌙 Dark Mode (Cinema Deep Black & Sky Blue)
+                Dark Mode (Cinema Deep Black & Sky Blue)
               </button>
               <span style="font-size:12px; color:var(--text-muted);" id="currentThemeNotice">Active: Light Mode</span>
             </div>
@@ -1740,7 +1821,7 @@
                   Unified operations portal for hospital staff, physicians, and patients. High-contrast, zero-clutter queue tracking designed for clinical efficiency.
                 </p>
                 <div style="margin-top:16px; padding:10px; background:rgba(255,255,255,0.1); border-radius:4px; font-size:12px;">
-                  🔒 HIPAA & ABDM Compliant Architecture
+                  HIPAA & ABDM Compliant Architecture
                 </div>
               </div>
               <div style="font-size:12px; opacity:0.6;">
@@ -1815,13 +1896,13 @@
                 </div>
                 <div class="demo-btn-grid">
                   <button class="btn btn-sm btn-secondary" onclick="loginAsDemo('doctor')">
-                    👨‍⚕️ Doctor Desk
+                    Doctor Desk
                   </button>
                   <button class="btn btn-sm btn-secondary" onclick="loginAsDemo('staff')">
-                    📋 Staff Desk
+                    Staff Desk
                   </button>
                   <button class="btn btn-sm btn-secondary" onclick="loginAsDemo('patient')">
-                    👤 Patient Portal
+                    Patient Portal
                   </button>
                 </div>
               </div>
@@ -1916,7 +1997,7 @@
     <div class="modal-box" style="max-width:720px;">
       <div class="modal-header">
         <h3 class="modal-title">Register Patient (Walk-In Desk)</h3>
-        <button class="btn btn-sm btn-text" onclick="closeRegisterPatientModal()">✕</button>
+        <button class="btn btn-sm btn-text" onclick="closeRegisterPatientModal()">&times;</button>
       </div>
       <div class="modal-body">
         
@@ -1931,8 +2012,8 @@
               <input type="text" class="input-text" id="regName" placeholder="e.g. Meera Patel">
             </div>
             <div class="form-group">
-              <label class="form-label">Mobile Number *</label>
-              <input type="tel" class="input-text" id="regPhone" placeholder="e.g. 9876543210">
+              <label class="form-label">Username / ID *</label>
+              <input type="text" class="input-text" id="regPhone" placeholder="e.g. vikram98">
             </div>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
@@ -2024,7 +2105,7 @@
     <div class="modal-box">
       <div class="modal-header">
         <h3 class="modal-title">Pause Queue for Emergency Case?</h3>
-        <button class="btn btn-sm btn-text" onclick="closeEmergencyHoldModal()">✕</button>
+        <button class="btn btn-sm btn-text" onclick="closeEmergencyHoldModal()">&times;</button>
       </div>
       <div class="modal-body">
         <p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">
@@ -2051,7 +2132,7 @@
     <div class="modal-box" style="text-align:center;">
       <div class="modal-header">
         <h3 class="modal-title">Offline Caregiver Pass</h3>
-        <button class="btn btn-sm btn-text" onclick="closeCaregiverQrModal()">✕</button>
+        <button class="btn btn-sm btn-text" onclick="closeCaregiverQrModal()">&times;</button>
       </div>
       <div class="modal-body">
         <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">
@@ -2096,13 +2177,96 @@
   <script>
     // 1. STATE & DATA INITIALIZATION
     const supaUrl = 'https://admwuakelunofmpkalji.supabase.co';
-    const supaKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkbXd1YWtlbHVub2ZtcGthbGppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIwNDQ5ODIsImV4cCI6MjA1NzYyMDk4Mn0.f0gL2fOq4k1zP8cQk-0bJk1L5zF0Z7a0P6n6rF8L0Q8';
+    const supaKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFkbXd1YWtlbHVub2ZtcGthbGppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkwODc2ODAsImV4cCI6MjEwNDY2MzY4MH0.pw1Xncy4lZovgM0IAZ4GpI3pSzMGuw0OFjl6BRRedT0';
     let supa = null;
     try {
-      supa = supabase.createClient(supaUrl, supaKey);
+      if (window.supabase) {
+        supa = window.supabase.createClient(supaUrl, supaKey);
+      }
     } catch (e) {
       console.warn('Supabase client fallback to memory state');
     }
+
+    // Enterprise Security: Sanitization & XSS Prevention
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Enterprise RBAC & Security Session Model
+    let authSession = {
+      user: 'Priya Nair',
+      role: 'staff', // 'staff', 'doctor', 'patient', 'admin'
+      facility: 'District HQ Hospital',
+      counter: 'Counter 1'
+    };
+
+    const ROLE_PERMISSIONS = {
+      staff: ['staff', 'patient', 'reports', 'login'],
+      doctor: ['doctor', 'staff', 'patient', 'reports', 'login'],
+      admin: ['staff', 'doctor', 'patient', 'reports', 'settings', 'login'],
+      patient: ['patient', 'login']
+    };
+
+    // Doctor Desk Live Consultation Stopwatch
+    let consultationSeconds = 0;
+    let consultationTimerInterval = null;
+
+    function startConsultationTimer() {
+      if (consultationTimerInterval) clearInterval(consultationTimerInterval);
+      const activePatient = sampleQueue.find(p => p.status === 'serving');
+      if (!activePatient) {
+        const el = document.getElementById('lblDocConsultTimer');
+        if (el) el.textContent = 'Elapsed: 00:00';
+        return;
+      }
+      consultationSeconds = 0;
+      updateConsultationTimerDisplay();
+      consultationTimerInterval = setInterval(() => {
+        consultationSeconds++;
+        updateConsultationTimerDisplay();
+      }, 1000);
+    }
+
+    function stopConsultationTimer() {
+      if (consultationTimerInterval) {
+        clearInterval(consultationTimerInterval);
+        consultationTimerInterval = null;
+      }
+    }
+
+    function updateConsultationTimerDisplay() {
+      const el = document.getElementById('lblDocConsultTimer');
+      if (!el) return;
+      const mins = String(Math.floor(consultationSeconds / 60)).padStart(2, '0');
+      const secs = String(consultationSeconds % 60).padStart(2, '0');
+      el.textContent = 'Elapsed: ' + mins + ':' + secs;
+    }
+
+    // Professional Acoustic Voice Call Announcement
+    function playVoiceCallAnnouncement(tokenNum, roomName) {
+      if (!('speechSynthesis' in window)) return;
+      try {
+        window.speechSynthesis.cancel();
+        const text = 'Token number ' + tokenNum + ', please proceed to ' + roomName;
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.rate = 0.95;
+        msg.pitch = 1.0;
+        msg.lang = currentLang === 'hi' ? 'hi-IN' : 'en-IN';
+        window.speechSynthesis.speak(msg);
+      } catch (err) {
+        console.warn('Speech synthesis fallback:', err);
+      }
+    }
+
+    let liveClinics = [];
+    let liveDoctors = [];
+    let isSupabaseConnected = false;
 
     let currentLang = 'en';
     let currentView = 'staff';
@@ -2119,7 +2283,7 @@
     let patientSelectedDept = 'Cardiology';
     let patientSelectedRoom = 'Room 101';
 
-    // Sample Clinical Queue Store
+    // Sample Clinical Queue Store (Local Fallback & In-Memory State)
     let sampleQueue = [
       { id: '1', number: 101, name: 'Anil Kumar', age: 48, sex: 'Male', uhid: 'UHID-2026-8902', dept: 'Cardiology', doctor: 'Dr. Rajesh Sharma', room: 'Room 101', arrival: '14:45', complaint: 'Chest discomfort on exertion', wait: '0–5m', priority: 2, status: 'serving' },
       { id: '2', number: 102, name: 'Sunita Devi', age: 62, sex: 'Female', uhid: 'UHID-2026-8903', dept: 'Cardiology', doctor: 'Dr. Rajesh Sharma', room: 'Room 101', arrival: '14:52', complaint: 'Hypertension follow-up', wait: '6–10m', priority: 1, status: 'issued' },
@@ -2131,6 +2295,79 @@
     let selectedPatientId = '1';
     let isSteppingOut = false;
     let isLabHold = false;
+
+    async function syncSupabaseQueue() {
+      if (!supa) return;
+      try {
+        const [cRes, dRes, qRes] = await Promise.all([
+          supa.from('clinics').select('*'),
+          supa.from('doctors').select('*').eq('is_active', true).order('room'),
+          supa.from('live_queue').select('*').order('position')
+        ]);
+
+        if (cRes.data && cRes.data.length > 0) {
+          liveClinics = cRes.data;
+          const clinic = liveClinics[0];
+          const hospTitle = document.getElementById('hospitalTitle');
+          if (hospTitle) hospTitle.textContent = clinic.hospital || 'District HQ Hospital';
+
+          const emBanner = document.getElementById('emergencyBanner');
+          if (emBanner) {
+            if (clinic.is_paused) {
+              emBanner.style.display = 'block';
+              const emMsg = document.getElementById('emergencyNoticeText');
+              if (emMsg) emMsg.textContent = clinic.pause_reason || 'Consultations temporarily paused.';
+              isEmergencyHoldActive = true;
+            } else {
+              emBanner.style.display = 'none';
+              isEmergencyHoldActive = false;
+            }
+          }
+        }
+
+        if (dRes.data && dRes.data.length > 0) {
+          liveDoctors = dRes.data;
+        }
+
+        if (qRes.data && qRes.data.length > 0) {
+          const statusMap = {
+            'called': 'serving',
+            'issued': 'issued',
+            'requeued': 'issued',
+            'served': 'completed',
+            'skipped': 'no-show',
+            'cancelled': 'cancelled'
+          };
+          sampleQueue = qRes.data.map(item => {
+            const doc = liveDoctors.find(d => d.id === item.doctor_id);
+            return {
+              id: item.id,
+              number: item.number,
+              name: item.display_label || 'Patient',
+              age: 45,
+              sex: 'N/A',
+              uhid: 'UHID-2026-' + item.number,
+              dept: doc ? doc.name.replace(/^Dr\.\s*[^()]*\((.*?)\)$/i, '$1').replace(/^Dr\.\s*/i, '').trim() : 'General Medicine',
+              doctor: doc ? doc.name : 'Dr. Aslam',
+              room: doc ? ('Room ' + doc.room) : 'Room 101',
+              arrival: item.issued_at ? new Date(item.issued_at).toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit'}) : '15:00',
+              complaint: item.priority_reason || (item.is_priority ? 'Emergency / Priority Triage' : 'Routine Consultation'),
+              wait: (item.position <= 1 ? '0–5m' : (item.position * 6 - 5) + '–' + (item.position * 6) + 'm'),
+              priority: item.is_priority ? 1 : 2,
+              status: statusMap[item.status] || 'issued',
+              doctor_id: item.doctor_id,
+              clinic_id: item.clinic_id
+            };
+          });
+          isSupabaseConnected = true;
+          renderQueueTable();
+          renderDoctorQueue();
+          updateKioskDisplay();
+        }
+      } catch (err) {
+        console.warn('Supabase sync offline fallback:', err);
+      }
+    }
 
     // 2. THEME ENGINE: LIGHT / DARK
     function setAppTheme(theme) {
@@ -2160,7 +2397,7 @@
       const icon = document.getElementById('themeToggleIcon');
       const txt = document.getElementById('themeToggleText');
       if (icon && txt) {
-        icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        icon.textContent = theme === 'dark' ? '[LIGHT]' : '[DARK]';
         txt.textContent = theme === 'dark' ? 'Light' : 'Dark';
       }
     }
@@ -2230,8 +2467,15 @@
       showToast(currentLang === 'en' ? 'Language switched to English' : 'भाषा हिन्दी में बदली गई');
     }
 
-    // 4. VIEW ROUTING & NAVIGATION
+    // 4. VIEW ROUTING & RBAC SECURITY NAVIGATION
     function switchView(viewName) {
+      // Role-Based Access Control Gate
+      const allowed = ROLE_PERMISSIONS[authSession.role] || ['patient', 'login'];
+      if (!allowed.includes(viewName)) {
+        showToast('Access Denied: Role "' + authSession.role.toUpperCase() + '" is not authorized for ' + viewName.toUpperCase() + '. Switch active role in Demo Control bar.');
+        return;
+      }
+
       currentView = viewName;
       document.querySelectorAll('.view-screen').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -2257,7 +2501,35 @@
       document.getElementById('pageMainHeading').textContent = titles[viewName] || 'QTime OPD';
 
       if (viewName === 'staff') renderQueueTable();
-      if (viewName === 'doctor') renderDoctorQueue();
+      if (viewName === 'doctor') {
+        renderDoctorQueue();
+        startConsultationTimer();
+      }
+      if (viewName === 'patient') {
+        renderPatientDoctorGrid();
+      }
+    }
+
+    function handleRoleSwitch(role) {
+      authSession.role = role;
+      const roleProfiles = {
+        staff: { name: 'Priya Nair', title: 'Reception Desk (Counter 1)', defaultView: 'staff' },
+        doctor: { name: 'Dr. Rajesh Sharma', title: 'Lead Physician (Room 101)', defaultView: 'doctor' },
+        patient: { name: 'Vikram Mehta', title: 'Patient (Token #103)', defaultView: 'patient' },
+        admin: { name: 'Hospital Admin', title: 'Medical Superintendent', defaultView: 'settings' }
+      };
+      const prof = roleProfiles[role] || roleProfiles.staff;
+      authSession.user = prof.name;
+      const userEl = document.getElementById('sidebarUserName');
+      const roleEl = document.getElementById('sidebarUserRole');
+      if (userEl) userEl.textContent = prof.name;
+      if (roleEl) roleEl.textContent = prof.title;
+      
+      const roleSel = document.getElementById('demoRoleSelector');
+      if (roleSel) roleSel.value = role;
+
+      showToast('Role switched to: ' + role.toUpperCase() + ' (' + prof.name + ')');
+      switchView(prof.defaultView);
     }
 
     // 5. KIOSK FULLSCREEN MODE
@@ -2294,8 +2566,8 @@
       const statusVal = document.getElementById('statusFilterSelect').value;
 
       const filtered = sampleQueue.filter(p => {
-        const matchesSearch = p.name.toLowerCase().includes(searchVal) ||
-                              p.uhid.toLowerCase().includes(searchVal) ||
+        const matchesSearch = (p.name || '').toLowerCase().includes(searchVal) ||
+                              (p.uhid || '').toLowerCase().includes(searchVal) ||
                               ('#' + p.number).includes(searchVal);
         const matchesDept = (deptVal === 'ALL') || (p.dept === deptVal);
         const matchesStatus = (statusVal === 'ALL') || (p.status === statusVal);
@@ -2309,28 +2581,30 @@
         let statusBadge = '<span class="chip chip-waiting">Waiting</span>';
         if (p.status === 'serving') statusBadge = '<span class="chip chip-serving">In Consult</span>';
         if (p.status === 'hold') statusBadge = '<span class="chip chip-hold">On Hold</span>';
+        if (p.status === 'completed') statusBadge = '<span class="chip chip-serving">Completed</span>';
+        if (p.status === 'no-show') statusBadge = '<span class="chip chip-priority">No-Show</span>';
 
         const priorityBadge = p.priority === 1
           ? '<span class="chip chip-priority">P1 URGENT</span>'
           : '<span class="chip chip-waiting">P2 Normal</span>';
 
         tr.innerHTML = `
-          <td><span style="font-family:var(--font-mono); font-weight:700; color:var(--accent-blue);">#${p.number}</span></td>
+          <td><span style="font-family:var(--font-mono); font-weight:700; color:var(--accent-blue);">#${escapeHtml(p.number)}</span></td>
           <td>
-            <div style="font-weight:600;">${p.name}</div>
-            <div style="font-size:11px; color:var(--text-muted);">${p.uhid} · ${p.age}y/${p.sex}</div>
+            <div style="font-weight:600;">${escapeHtml(p.name)}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${escapeHtml(p.uhid)} · ${escapeHtml(p.age)}y/${escapeHtml(p.sex)}</div>
           </td>
           <td>
-            <div>${p.dept}</div>
-            <div style="font-size:11px; color:var(--text-muted);">${p.doctor}</div>
+            <div>${escapeHtml(p.dept)}</div>
+            <div style="font-size:11px; color:var(--text-muted);">${escapeHtml(p.doctor)}</div>
           </td>
-          <td><span style="font-family:var(--font-mono); font-weight:600;">${p.room || 'Room 101'}</span></td>
-          <td>${p.wait}</td>
+          <td><span style="font-family:var(--font-mono); font-weight:600;">${escapeHtml(p.room || 'Room 101')}</span></td>
+          <td>${escapeHtml(p.wait)}</td>
           <td>${priorityBadge}</td>
           <td>${statusBadge}</td>
           <td style="text-align:right;">
-            <button class="btn btn-sm btn-outline" onclick="callSpecificPatient('${p.id}')">Call</button>
-            <button class="btn btn-sm btn-text" onclick="printReceiptForPatient('${p.id}')">Receipt</button>
+            <button class="btn btn-sm btn-outline" onclick="callSpecificPatient('${escapeHtml(p.id)}')">Call</button>
+            <button class="btn btn-sm btn-text" onclick="printReceiptForPatient('${escapeHtml(p.id)}')">Receipt</button>
           </td>
         `;
         tr.onclick = (e) => {
@@ -2366,10 +2640,26 @@
       p.status = 'serving';
       selectedPatientId = id;
       playAudioChime();
+      playVoiceCallAnnouncement(p.number, p.room || 'Room 101');
+      startConsultationTimer();
       renderQueueTable();
       renderDoctorQueue();
       updateKioskDisplay();
       showToast('Calling token #' + p.number + ' (' + p.name + ') to ' + (p.room || 'Room 101'));
+
+      if (supa && typeof id === 'string' && id.length > 10) {
+        supa.from('tokens').update({ status: 'called' }).eq('id', id).then(() => {
+          if (liveClinics[0]) {
+            supa.from('queue_events').insert({
+              token_id: id,
+              clinic_id: p.clinic_id || liveClinics[0].id,
+              actor: 'staff',
+              event: 'called',
+              payload: { room: p.room || 'Room 101' }
+            });
+          }
+        }).catch(console.warn);
+      }
     }
 
     // 7. DOCTOR DASHBOARD ACTIONS
@@ -2383,25 +2673,32 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td><span style="font-family:var(--font-mono); font-weight:700;">#${idx + 1}</span></td>
-          <td><span style="font-family:var(--font-mono); font-weight:700; color:var(--accent-blue);">#${p.number}</span></td>
-          <td>${p.name}</td>
-          <td>${p.age}y / ${p.sex}</td>
-          <td>${p.wait}</td>
+          <td><span style="font-family:var(--font-mono); font-weight:700; color:var(--accent-blue);">#${escapeHtml(p.number)}</span></td>
+          <td>${escapeHtml(p.name)}</td>
+          <td>${escapeHtml(p.age)}y / ${escapeHtml(p.sex)}</td>
+          <td>${escapeHtml(p.wait)}</td>
           <td>${p.priority === 1 ? '<span class="chip chip-priority">P1</span>' : '<span class="chip chip-waiting">P2</span>'}</td>
           <td style="text-align:right;">
-            <button class="btn btn-sm btn-primary" onclick="callSpecificPatient('${p.id}')">Call Now</button>
+            <button class="btn btn-sm btn-primary" onclick="callSpecificPatient('${escapeHtml(p.id)}')">Call Now</button>
           </td>
         `;
         tbody.appendChild(tr);
       });
 
-      const active = sampleQueue.find(p => p.status === 'serving') || sampleQueue[0];
+      const active = sampleQueue.find(p => p.status === 'serving');
       if (active) {
         document.getElementById('docCurToken').textContent = '#' + active.number;
         document.getElementById('docCurName').textContent = active.name;
         document.getElementById('docCurDemog').textContent = active.age + 'y · ' + active.sex;
         document.getElementById('docCurUhid').textContent = active.uhid;
         document.getElementById('docCurComplaint').textContent = active.complaint || 'Standard clinical consultation';
+      } else {
+        document.getElementById('docCurToken').textContent = 'None';
+        document.getElementById('docCurName').textContent = 'No active patient';
+        document.getElementById('docCurDemog').textContent = 'Desk ready';
+        document.getElementById('docCurUhid').textContent = 'UHID: Pending';
+        document.getElementById('docCurComplaint').textContent = 'Awaiting next patient in queue';
+        stopConsultationTimer();
       }
     }
 
@@ -2409,15 +2706,25 @@
       const current = sampleQueue.find(p => p.status === 'serving');
       if (current) {
         current.status = 'completed';
+        stopConsultationTimer();
         showToast('Consultation completed for #' + current.number + ' (' + current.name + ')');
+        if (supa && typeof current.id === 'string' && current.id.length > 10) {
+          supa.from('tokens').update({ status: 'served' }).eq('id', current.id).catch(console.warn);
+        }
       }
       const nextP = sampleQueue.find(p => p.status === 'issued');
       if (nextP) {
         nextP.status = 'serving';
         selectedPatientId = nextP.id;
         playAudioChime();
+        playVoiceCallAnnouncement(nextP.number, nextP.room || 'Room 101');
+        startConsultationTimer();
         showToast('Called next patient: #' + nextP.number + ' (' + nextP.name + ')');
+        if (supa && typeof nextP.id === 'string' && nextP.id.length > 10) {
+          supa.from('tokens').update({ status: 'called' }).eq('id', nextP.id).catch(console.warn);
+        }
       } else {
+        stopConsultationTimer();
         showToast('All queued patients completed.');
       }
       renderQueueTable();
@@ -2433,6 +2740,10 @@
       const current = sampleQueue.find(p => p.status === 'serving');
       if (!current) return;
       current.status = 'no-show';
+      stopConsultationTimer();
+      if (supa && typeof current.id === 'string' && current.id.length > 10) {
+        supa.from('tokens').update({ status: 'skipped' }).eq('id', current.id).catch(console.warn);
+      }
       showToast('Patient #' + current.number + ' marked as NO-SHOW.');
       handleDoctorPrimaryAction();
     }
@@ -2477,6 +2788,133 @@
       patientSelectedRoom = room;
       document.getElementById('patientMyDoc').textContent = docName + ' · ' + room;
       showToast('Selected doctor: ' + docName + ' (' + dept + ')');
+    }
+
+    function renderPatientDoctorGrid() {
+      const grid = document.getElementById('doctorSelectionGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const doctorsToDisplay = (liveDoctors && liveDoctors.length > 0) ? liveDoctors : [
+        { id: 'd1', name: 'Dr. Rajesh Sharma', department: 'Cardiology', room: '101' },
+        { id: 'd2', name: 'Dr. Sunita Patel', department: 'Pediatrics', room: '104' },
+        { id: 'd3', name: 'Dr. Amit Verma', department: 'Orthopedics', room: '106' },
+        { id: 'd4', name: 'Dr. Priya Nair', department: 'General Medicine', room: '102' }
+      ];
+
+      doctorsToDisplay.forEach((doc, idx) => {
+        const docDept = doc.department || (doc.name.includes('(') ? doc.name.match(/\((.*?)\)/)[1] : 'General Medicine');
+        const docRoom = doc.room ? ('Room ' + doc.room) : 'Room 101';
+        const inQueue = sampleQueue.filter(p => p.doctor && p.doctor.toLowerCase().includes(doc.name.toLowerCase()) && p.status === 'issued').length;
+        const estWait = Math.max(5, inQueue * 6);
+        const isSelected = patientSelectedDoctor === doc.name || (idx === 0 && !patientSelectedDoctor);
+
+        const card = document.createElement('div');
+        card.className = 'selector-card' + (isSelected ? ' selected' : '');
+        card.onclick = () => selectDoctor(card, doc.name, docDept, docRoom);
+        card.innerHTML = `
+          <div style="font-weight:700; font-size:14px;">${escapeHtml(doc.name)}</div>
+          <div style="font-size:12px; color:var(--text-secondary);">${escapeHtml(docDept)} · ${escapeHtml(docRoom)}</div>
+          <div style="font-size:11px; color:var(--accent-blue); margin-top:6px; font-weight:600;">${inQueue} in queue · Est. ${estWait} mins</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // 9. INTERACTIVE OPD SIMULATOR ENGINE (EVALUATOR MACROS)
+    let isAutoSimRunning = false;
+    async function runAutomatedOpdSimulation() {
+      if (isAutoSimRunning) {
+        showToast('Automated simulation is already in progress.');
+        return;
+      }
+      isAutoSimRunning = true;
+      const simBtn = document.getElementById('btnSimAuto');
+      if (simBtn) {
+        simBtn.disabled = true;
+        simBtn.textContent = 'Simulating...';
+      }
+
+      showToast('Step 1/4: Registering new walk-in patient at reception...');
+      handleRoleSwitch('staff');
+
+      const nextNum = sampleQueue.length > 0 ? Math.max(...sampleQueue.map(p => p.number)) + 1 : 106;
+      const demoNames = ['Arun Verma', 'Kavita Singh', 'Manoj Joshi', 'Anita Desai'];
+      const chosenName = demoNames[Math.floor(Math.random() * demoNames.length)];
+      const newPt = {
+        id: 'sim-' + Date.now(),
+        number: nextNum,
+        name: chosenName,
+        age: 42,
+        sex: 'Male',
+        uhid: 'UHID-2026-' + (8900 + nextNum),
+        dept: 'Cardiology',
+        doctor: 'Dr. Rajesh Sharma',
+        room: 'Room 101',
+        arrival: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+        complaint: 'Routine cardiac follow-up',
+        wait: '0–5m',
+        priority: 2,
+        status: 'issued'
+      };
+      sampleQueue.push(newPt);
+      renderQueueTable();
+      renderDoctorQueue();
+      updateKioskDisplay();
+      playAudioChime();
+      showToast('Token #' + nextNum + ' issued for ' + chosenName);
+
+      await new Promise(r => setTimeout(r, 2000));
+      showToast('Step 2/4: Calling token #' + nextNum + ' to Doctor Desk (Room 101)...');
+      handleRoleSwitch('doctor');
+      callSpecificPatient(newPt.id);
+      playVoiceCallAnnouncement(newPt.number, newPt.room);
+
+      await new Promise(r => setTimeout(r, 3000));
+      showToast('Step 3/4: Consultation underway. Active stopwatch ticking...');
+
+      await new Promise(r => setTimeout(r, 3000));
+      showToast('Step 4/4: Consultation completed. Clinical notes recorded.');
+      newPt.status = 'completed';
+      stopConsultationTimer();
+      renderQueueTable();
+      renderDoctorQueue();
+      updateKioskDisplay();
+
+      if (simBtn) {
+        simBtn.disabled = false;
+        simBtn.textContent = 'Simulate Auto Flow';
+      }
+      isAutoSimRunning = false;
+      showToast('End-to-end OPD cycle finished successfully.');
+    }
+
+    function simulateIcuCodeBlue() {
+      if (isEmergencyHoldActive) {
+        confirmResumeQueue();
+      } else {
+        executeEmergencyHold();
+      }
+    }
+
+    function simulatePatientStepOut() {
+      handleRoleSwitch('patient');
+      toggleSteppingOutPatient();
+    }
+
+    function simulateLabPriorityReturn() {
+      const activeServing = sampleQueue.find(p => p.status === 'serving') || sampleQueue[0];
+      if (activeServing) {
+        activeServing.priority = 1;
+        activeServing.status = 'issued';
+        activeServing.complaint = 'Lab Diagnostic Return (Priority)';
+        sampleQueue = [activeServing, ...sampleQueue.filter(p => p.id !== activeServing.id)];
+        renderQueueTable();
+        renderDoctorQueue();
+        updateKioskDisplay();
+        playAudioChime();
+        showToast('Token #' + activeServing.number + ' returned from Laboratory. Priority elevated.');
+      }
     }
 
     function bookPatientTokenForSelected() {
@@ -2581,7 +3019,7 @@
       const priority = parseInt(document.getElementById('regPriority').value) || 2;
 
       if (!name) { alert('Please enter patient name.'); return; }
-      if (!phone) { alert('Please enter patient mobile number.'); return; }
+      if (!phone) { alert('Please enter patient username.'); return; }
 
       const nextNum = sampleQueue.length > 0 ? Math.max(...sampleQueue.map(p => p.number)) + 1 : 106;
       const newPatient = {
@@ -2613,6 +3051,20 @@
       renderQueueTable();
       renderDoctorQueue();
       showToast('Token #' + nextNum + ' issued for ' + name);
+
+      if (supa && liveClinics.length > 0 && liveDoctors.length > 0) {
+        const selectedDoc = liveDoctors.find(d => doctor.toLowerCase().includes(d.name.toLowerCase())) || liveDoctors[0];
+        supa.from('tokens').insert({
+          clinic_id: liveClinics[0].id,
+          doctor_id: selectedDoc.id,
+          source: 'walk_in',
+          is_priority: priority === 1,
+          priority_reason: priority === 1 ? 'Emergency / Priority Triage' : null,
+          display_label: name
+        }).then(() => {
+          syncSupabaseQueue();
+        }).catch(console.warn);
+      }
     }
 
     function resetAndRegisterAnother() {
@@ -2674,6 +3126,14 @@
 
       playAudioChime();
       showToast('EMERGENCY HOLD ACTIVATED: Queue paused.');
+
+      if (supa && liveClinics.length > 0) {
+        supa.from('clinics').update({
+          is_paused: true,
+          pause_reason: reason,
+          paused_at: new Date().toISOString()
+        }).eq('id', liveClinics[0].id).catch(console.warn);
+      }
     }
 
     function confirmResumeQueue() {
@@ -2681,6 +3141,14 @@
       document.getElementById('emergencyBanner').style.display = 'none';
       if (emergencyTimerInterval) clearInterval(emergencyTimerInterval);
       showToast('Emergency hold released. Routine consultation queue resumed.');
+
+      if (supa && liveClinics.length > 0) {
+        supa.from('clinics').update({
+          is_paused: false,
+          pause_reason: null,
+          paused_at: null
+        }).eq('id', liveClinics[0].id).catch(console.warn);
+      }
     }
 
     // Offline Caregiver QR Modal
@@ -2762,28 +3230,40 @@
         if (regDocNotice) regDocNotice.style.display = 'none';
         if (regIdLbl) regIdLbl.textContent = 'Staff ID / Email';
       } else {
-        idLbl.textContent = 'Mobile Number or Username';
+        idLbl.textContent = 'Patient Username';
         idInp.value = 'vikram98';
         submitBtn.textContent = 'Enter Patient Portal';
         if (regDocNotice) regDocNotice.style.display = 'none';
-        if (regIdLbl) regIdLbl.textContent = 'Mobile Number / Username (No Google Needed)';
+        if (regIdLbl) regIdLbl.textContent = 'Patient Username';
       }
     }
 
     function executeUserLogin() {
       if (currentRoleTab === 'doctor') {
+        authSession.role = 'doctor';
+        authSession.user = 'Dr. Rajesh Sharma';
         document.getElementById('sidebarUserName').textContent = 'Dr. Rajesh Sharma';
         document.getElementById('sidebarUserRole').textContent = 'Lead Physician (Room 101)';
+        const roleSel = document.getElementById('demoRoleSelector');
+        if (roleSel) roleSel.value = 'doctor';
         switchView('doctor');
         showToast('Welcome Dr. Rajesh Sharma. Switched to Doctor Desk.');
       } else if (currentRoleTab === 'staff') {
+        authSession.role = 'staff';
+        authSession.user = 'Priya Nair';
         document.getElementById('sidebarUserName').textContent = 'Priya Nair';
         document.getElementById('sidebarUserRole').textContent = 'Reception Desk (Counter 1)';
+        const roleSel = document.getElementById('demoRoleSelector');
+        if (roleSel) roleSel.value = 'staff';
         switchView('staff');
         showToast('Welcome Priya Nair. Switched to Reception Desk.');
       } else {
+        authSession.role = 'patient';
+        authSession.user = 'Vikram Mehta';
         document.getElementById('sidebarUserName').textContent = 'Vikram Mehta';
         document.getElementById('sidebarUserRole').textContent = 'Patient (Token A-07)';
+        const roleSel = document.getElementById('demoRoleSelector');
+        if (roleSel) roleSel.value = 'patient';
         switchView('patient');
         showToast('Welcome Vikram Mehta. Switched to Patient Portal.');
       }
@@ -2815,12 +3295,12 @@
       const tbody = document.getElementById('staffRosterTableBody');
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td><strong>${name}</strong></td>
-        <td>${email}</td>
-        <td>${role}</td>
-        <td>${counter}</td>
+        <td><strong>${escapeHtml(name)}</strong></td>
+        <td>${escapeHtml(email)}</td>
+        <td>${escapeHtml(role)}</td>
+        <td>${escapeHtml(counter)}</td>
         <td><span class="chip chip-serving">ACTIVE</span></td>
-        <td style="text-align:right;"><button class="btn btn-sm btn-outline" onclick="showToast('Role updated for ${name}')">Edit</button></td>
+        <td style="text-align:right;"><button class="btn btn-sm btn-outline" onclick="showToast('Role updated for ${escapeHtml(name)}')">Edit</button></td>
       `;
       tbody.appendChild(tr);
 
@@ -2892,6 +3372,7 @@
       ];
       renderQueueTable();
       renderDoctorQueue();
+      renderPatientDoctorGrid();
       updateKioskDisplay();
       showToast('Sample OPD queue re-seeded with 5 patients.');
     }
@@ -2901,7 +3382,7 @@
       const container = document.getElementById('toastContainer');
       const t = document.createElement('div');
       t.className = 'toast-msg';
-      t.innerHTML = '<span>ℹ️</span><span>' + msg + '</span>';
+      t.innerHTML = '<span class="toast-indicator"></span><span>' + escapeHtml(msg) + '</span>';
       container.appendChild(t);
       setTimeout(() => {
         t.style.opacity = '0';
@@ -2927,13 +3408,23 @@
       updateClock();
       renderQueueTable();
       renderDoctorQueue();
+      renderPatientDoctorGrid();
       syncRegDoctorOptions();
       syncAuthTabDetails();
+      syncSupabaseQueue();
+
+      if (supa) {
+        try {
+          supa.channel('web-portal-sync')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'tokens' }, () => syncSupabaseQueue())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'clinics' }, () => syncSupabaseQueue())
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'doctors' }, () => syncSupabaseQueue())
+            .subscribe();
+        } catch (subErr) {
+          console.warn('Realtime channel subscription fallback:', subErr);
+        }
+      }
     });
   </script>
 </body>
 </html>
-`;
-
-fs.writeFileSync(targetPath, html, 'utf8');
-console.log('Successfully wrote updated index.html, total size:', html.length);

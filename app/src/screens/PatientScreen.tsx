@@ -15,6 +15,7 @@ import {
   fetchClinics,
   fetchDoctors,
   fetchToken,
+  fetchQueue,
   getEta,
   claimToken,
   patientConfirm,
@@ -187,9 +188,17 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
       setClinic(clinics[0]);
       setDoctor(docs[0]);
 
-      // Create a mock active token for demo preview if none exist
+      // Check for live tokens in queue
+      const q = await fetchQueue(docs[0].id);
+      const targetTokenRow = q.find(item => item.status === 'issued') || q[0];
+      if (targetTokenRow) {
+        await loadTokenDetails(targetTokenRow.id);
+        return;
+      }
+
+      // Create a mock active token with valid UUID format for offline preview
       const demoToken: Token = {
-        id: 'demo-token-101',
+        id: '00000000-0000-0000-0000-000000000101',
         clinic_id: clinics[0].id,
         doctor_id: docs[0].id,
         number: 14,
@@ -202,8 +211,8 @@ export function PatientScreen({onSwitchMode, onLanguageChange}: PatientScreenPro
         issued_at: new Date().toISOString(),
         called_at: null,
         position: 4,
-        claim_code: 'demo-code',
-        claimed_by: 'demo-user',
+        claim_code: '00000000-0000-0000-0000-000000000102',
+        claimed_by: '00000000-0000-0000-0000-000000000103',
         served_at: null,
         updated_at: new Date().toISOString(),
       };

@@ -1,4 +1,5 @@
 import {supa, ensureAnonSession} from './supa';
+import {enqueueOp, isNetworkError, saveSession, replayOutbox, outboxCount} from './offline';
 import type {
   Clinic,
   Doctor,
@@ -9,6 +10,8 @@ import type {
   TokenSource,
   EventType,
 } from './types';
+
+export {replayOutbox, outboxCount};
 
 // ---------- Reads (all work with the anon key) ----------
 
@@ -158,28 +161,64 @@ export async function transitionToken(
   event: EventType,
   extra: Record<string, unknown> = {},
 ): Promise<void> {
-  const {error} = await supa.from('tokens').update({status: to}).eq('id', token.id);
-  if (error) throw error;
-  await insertEvent(token.id, token.clinic_id, 'staff', event, {number: token.number, ...extra});
+  try {
+    const {error} = await supa.from('tokens').update({status: to}).eq('id', token.id);
+    if (error) throw error;
+    await insertEvent(token.id, token.clinic_id, 'staff', event, {number: token.number, ...extra});
+  } catch (err) {
+    if (isNetworkError(err)) {
+      await enqueueOp({kind: 'transition', args: {tokenId: token.id, to}});
+      await enqueueOp({
+        kind: 'event',
+        args: {tokenId: token.id, clinicId: token.clinic_id, actor: 'staff', event, payload: {number: token.number, ...extra}},
+      });
+      return;
+    }
+    throw err;
+  }
 }
 
 export async function setPaused(clinicId: string, paused: boolean, reason?: string): Promise<void> {
-  const {error} = await supa
-    .from('clinics')
-    .update({is_paused: paused, pause_reason: paused ? reason || null : null, paused_at: paused ? new Date().toISOString() : null})
-    .eq('id', clinicId);
-  if (error) throw error;
-  await insertEvent(null, clinicId, 'staff', paused ? 'paused' : 'resumed', {reason: reason || ''});
+  try {
+    const {error} = await supa
+      .from('clinics')
+      .update({is_paused: paused, pause_reason: paused ? reason || null : null, paused_at: paused ? new Date().toISOString() : null})
+      .eq('id', clinicId);
+    if (error) throw error;
+    await insertEvent(null, clinicId, 'staff', paused ? 'paused' : 'resumed', {reason: reason || ''});
+  } catch (err) {
+    if (isNetworkError(err)) {
+      await enqueueOp({kind: 'pause', args: {clinicId, paused, reason: reason || ''}});
+      return;
+    }
+    throw err;
+  }
 }
 
 export async function setRoom(doctorId: string, clinicId: string, room: number): Promise<void> {
-  const {error} = await supa.from('doctors').update({room}).eq('id', doctorId);
-  if (error) throw error;
-  await insertEvent(null, clinicId, 'staff', 'room_changed', {room});
+  try {
+    const {error} = await supa.from('doctors').update({room}).eq('id', doctorId);
+    if (error) throw error;
+    await insertEvent(null, clinicId, 'staff', 'room_changed', {room});
+  } catch (err) {
+    if (isNetworkError(err)) {
+      await enqueueOp({kind: 'room', args: {doctorId, room}});
+      return;
+    }
+    throw err;
+  }
 }
 
 export async function broadcastNotice(clinicId: string, text: string): Promise<void> {
-  await insertEvent(null, clinicId, 'staff', 'delay_notice', {text});
+  try {
+    await insertEvent(null, clinicId, 'staff', 'delay_notice', {text});
+  } catch (err) {
+    if (isNetworkError(err)) {
+      await enqueueOp({kind: 'notice', args: {clinicId, text}});
+      return;
+    }
+    throw err;
+  }
 }
 
 // ---------- Staff auth ----------
@@ -187,6 +226,7 @@ export async function broadcastNotice(clinicId: string, text: string): Promise<v
 export async function staffSignIn(email: string, password: string) {
   const {data, error} = await supa.auth.signInWithPassword({email, password});
   if (error) throw error;
+  await saveSession();
   return data;
 }
 

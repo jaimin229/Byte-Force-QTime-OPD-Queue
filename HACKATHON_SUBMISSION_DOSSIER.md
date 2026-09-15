@@ -136,16 +136,19 @@ CREATE TABLE doctors (
 CREATE TABLE tokens (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     clinic_id UUID REFERENCES clinics(id) ON DELETE CASCADE,
-    doctor_id UUID REFERENCES doctors(id),
+    doctor_id UUID REFERENCES doctors(id) ON DELETE CASCADE,
     number INT NOT NULL,
-    source TEXT CHECK (source IN ('walk_in', 'online', 'referral', 'follow_up', 'emergency')),
-    priority INT DEFAULT 2, -- 1: Emergency, 2: Standard, 3: Low
-    status TEXT CHECK (status IN ('issued', 'called', 'serving', 'done', 'skipped', 'cancelled')),
+    source TEXT CHECK (source IN ('walk_in', 'appointment', 'referral', 'follow_up', 'diagnostic')),
+    is_priority BOOLEAN DEFAULT FALSE,
+    priority_reason TEXT,
+    status TEXT CHECK (status IN ('issued', 'called', 'served', 'skipped', 'requeued', 'cancelled')),
     stepped_out BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMPTZ DEFAULT now(),
+    issued_at TIMESTAMPTZ DEFAULT now(),
     called_at TIMESTAMPTZ,
-    serving_at TIMESTAMPTZ,
-    done_at TIMESTAMPTZ
+    served_at TIMESTAMPTZ,
+    closed_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ DEFAULT now(),
+    UNIQUE (doctor_id, number)
 );
 ```
 
